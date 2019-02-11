@@ -8,9 +8,7 @@ const cors = require('cors');
 const { sequelize } = require('./models');
 const config = require('./config/config');
 
-// const indexRouter = require('./routes/index');
-// const usersRouter = require('./routes/users');
-
+require('./passport');
 const app = express();
 
 app.use(logger('dev'));
@@ -21,8 +19,7 @@ app.use(bodyParser.json());
 app.use(cors());
 app.use(express.static(path.join(__dirname, 'storage')));
 
-// app.use('/', indexRouter);
-// app.use('/users', usersRouter);
+require('./routes')(app);
 
 sequelize
   .sync({
