@@ -5,7 +5,7 @@ module.exports = (sequelize, DataTypes) => {
   });
 
   Criteria.associate = function(models) {
-    Criteria.belongsTo(models.Standard);
+    Criteria.belongsTo(models.Criterion);
   };
 
   return Criteria;
