@@ -1,13 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
-  const Proof = sequelize.define('Proof', {
+  const Evidence = sequelize.define('Evidence', {
     type: { type: DataTypes.STRING, allowNull: false },
     content: DataTypes.TEXT,
     contentPath: DataTypes.STRING
   });
 
-  Proof.associate = function(models) {
-    Proof.belongsTo(models.Criteria);
+  Evidence.associate = function(models) {
+    Evidence.belongsTo(models.Criteria);
   };
 
-  return Proof;
+  return Evidence;
 };

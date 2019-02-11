@@ -1,12 +1,12 @@
 module.exports = (sequelize, DataTypes) => {
-  const Question = sequelize.define('Question', {
+  const DiaQuestion = sequelize.define('DiaQuestion', {
     question: { type: DataTypes.TEXT, allowNull: false },
     answer: { type: DataTypes.TEXT, allowNull: false }
   });
 
-  Question.associate = function(models) {
-    Question.belongsTo(models.Criteria);
+  DiaQuestion.associate = function(models) {
+    DiaQuestion.belongsTo(models.Criteria);
   };
 
-  return Question;
+  return DiaQuestion;
 };

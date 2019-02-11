@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
-  const Report = sequelize.define('Report', {
+  const SAR = sequelize.define('SAR', {
     name: { type: DataTypes.STRING, primaryKey: true }
   });
 
-  return Report;
+  return SAR;
 };
