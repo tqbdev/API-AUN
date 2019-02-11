@@ -42,10 +42,6 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  // User.associate = function (models) {
-  //     User.hasMany(models.User, {as: 'Users'})
-  // }
-
   User.prototype.comparePassword = function(password) {
     return bcrypt.compareAsync(password, this.password);
   };
