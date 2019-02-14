@@ -9,7 +9,8 @@ module.exports = (sequelize, DataTypes) => {
     AUNEvidence.belongsTo(models.AUNCriteria, {
       foreignKey: {
         allowNull: false
-      }
+      },
+      onDelete: 'CASCADE'
     });
   };
 
