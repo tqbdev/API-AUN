@@ -11,10 +11,10 @@ const {
   remove
 } = require('../controllers/ImplicationController');
 
-router.get('/', readAll);
-router.get('/:id', readOne);
-router.post('/', create);
-router.patch('/:id', update);
-router.delete('/:id', remove);
+router.get('/', isAuthenticated, readAll);
+router.get('/:id', isAuthenticated, readOne);
+router.post('/', isAuthenticated, create);
+router.patch('/:id', isAuthenticated, update);
+router.delete('/:id', isAuthenticated, remove);
 
 module.exports = router;

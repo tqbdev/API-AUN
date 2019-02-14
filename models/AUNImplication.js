@@ -7,7 +7,8 @@ module.exports = (sequelize, DataTypes) => {
     AUNImplication.belongsTo(models.AUNCriteria, {
       foreignKey: {
         allowNull: false
-      }
+      },
+      onDelete: 'CASCADE'
     });
   };
 

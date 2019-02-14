@@ -19,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     AUNCriterion.belongsTo(models.AUNSar, {
       foreignKey: {
         allowNull: false
-      }
+      },
+      onDelete: 'CASCADE'
     });
   };
 

@@ -19,7 +19,8 @@ module.exports = (sequelize, DataTypes) => {
     AUNCriteria.belongsTo(models.AUNCriterion, {
       foreignKey: {
         allowNull: false
-      }
+      },
+      onDelete: 'CASCADE'
     });
   };
 

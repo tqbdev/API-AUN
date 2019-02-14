@@ -8,7 +8,8 @@ module.exports = (sequelize, DataTypes) => {
     AUNDiaQuestion.belongsTo(models.AUNCriteria, {
       foreignKey: {
         allowNull: false
-      }
+      },
+      onDetele: 'CASCADE'
     });
   };
 
