@@ -1,26 +1,22 @@
 const _ = require('lodash');
 
-const { AUNDiaQuestion } = require('../models');
+const { AUN_QUESTION } = require('../models');
 
 module.exports = {
   async readAll(req, res) {
     try {
-      const { CriteriaId } = req.query;
-      if (!CriteriaId) {
+      const { SubCriterionId } = req.query;
+      if (!SubCriterionId) {
         return res.status(404).send({
-          error: 'Require CriteriaId param'
+          error: 'Require SubCriterionId param'
         });
       }
 
-      const diaquestions = await AUNDiaQuestion.findAll({ id: CriteriaId });
-
-      if (!diaquestions) {
-        return res.status(404).send({
-          error:
-            'Not found any diaquestions belong to the criteria has id ' +
-            CriteriaId
-        });
-      }
+      const diaquestions = await AUN_QUESTION.findAll({
+        where: {
+          SubCriterionId: SubCriterionId
+        }
+      });
 
       res.send(diaquestions);
     } catch (err) {
@@ -34,7 +30,7 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const diaquestion = await AUNDiaQuestion.findByPk(id);
+      const diaquestion = await AUN_QUESTION.findByPk(id);
 
       if (!diaquestion) {
         return res.status(404).send({
@@ -52,12 +48,12 @@ module.exports = {
 
   async create(req, res) {
     try {
-      let { question, answer, CriteriaId } = req.body;
+      let { question, answer, SubCriterionId } = req.body;
 
-      const diaquestion = await AUNDiaQuestion.create({
+      const diaquestion = await AUN_QUESTION.create({
         question,
         answer,
-        AUNCriteriumId: CriteriaId
+        SubCriterionId: SubCriterionId
       });
 
       res.send(diaquestion.toJSON());
@@ -73,7 +69,7 @@ module.exports = {
       const { id } = req.params;
       const { attributes } = req.body;
 
-      const diaquestion = await AUNDiaQuestion.findByPk(id);
+      const diaquestion = await AUN_QUESTION.findByPk(id);
 
       if (!diaquestion) {
         return res.status(404).send({
@@ -120,7 +116,7 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const diaquestion = await AUNDiaQuestion.findByPk(id);
+      const diaquestion = await AUN_QUESTION.findByPk(id);
 
       if (!diaquestion) {
         return res.status(404).send({

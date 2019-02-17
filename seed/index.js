@@ -1,4 +1,4 @@
-const { sequelize, User } = require('../models');
+const { sequelize, AUN_USER } = require('../models');
 
 const Promise = require('bluebird');
 const users = require('./users.json');
@@ -10,7 +10,7 @@ sequelize
   .then(async function() {
     await Promise.all(
       users.map(user => {
-        User.create(user);
+        AUN_USER.create(user);
       })
     );
   });

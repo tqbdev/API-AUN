@@ -1,6 +1,6 @@
 module.exports = (sequelize, DataTypes) => {
-  const AUNCriteria = sequelize.define(
-    'AUNCriteria',
+  const AUN_CRITERION = sequelize.define(
+    'AUN_CRITERION',
     {
       name: { type: DataTypes.STRING, allowNull: false },
       description: DataTypes.TEXT
@@ -9,20 +9,22 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          fields: ['name', 'AUNCriterionId']
+          name: 'Criterion - unique name and SARId',
+          fields: ['name', 'SARId']
         }
       ]
     }
   );
 
-  AUNCriteria.associate = function(models) {
-    AUNCriteria.belongsTo(models.AUNCriterion, {
+  AUN_CRITERION.associate = function(models) {
+    AUN_CRITERION.belongsTo(models.AUN_SAR, {
       foreignKey: {
+        name: 'SARId',
         allowNull: false
       },
       onDelete: 'CASCADE'
     });
   };
 
-  return AUNCriteria;
+  return AUN_CRITERION;
 };

@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const { AUNCriteria } = require('../models');
+const { AUN_SUB_CRITERION } = require('../models');
 
 module.exports = {
   async readAll(req, res) {
@@ -12,20 +12,14 @@ module.exports = {
         });
       }
 
-      const criterias = await AUNCriteria.findAll({ id: CriterionId });
+      const SubCriterions = await AUN_SUB_CRITERION.findAll({
+        where: { CriterionId: CriterionId }
+      });
 
-      if (!criterias) {
-        return res.status(404).send({
-          error:
-            'Not found any criterias belong to the criterion has id ' +
-            CriterionId
-        });
-      }
-
-      res.send(criterias);
+      res.send(SubCriterions);
     } catch (err) {
       res.status(500).send({
-        error: 'Error in get criterias'
+        error: 'Error in get SubCriterions'
       });
     }
   },
@@ -34,18 +28,18 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const criteria = await AUNCriteria.findByPk(id);
+      const subCriterion = await AUN_SUB_CRITERION.findByPk(id);
 
-      if (!criteria) {
+      if (!subCriterion) {
         return res.status(404).send({
-          error: 'Not found the criteria has id ' + id
+          error: 'Not found the SubCriterion has id ' + id
         });
       }
 
-      res.send(criteria.toJSON());
+      res.send(subCriterion.toJSON());
     } catch (err) {
       res.status(500).send({
-        error: 'Error in get a criteria'
+        error: 'Error in get a SubCriterion'
       });
     }
   },
@@ -54,22 +48,22 @@ module.exports = {
     try {
       let { name, CriterionId, description } = req.body;
 
-      const newCriteria = await AUNCriteria.create({
+      const subCriterion = await AUN_SUB_CRITERION.create({
         name,
         description,
-        AUNCriterionId: CriterionId
+        CriterionId: CriterionId
       });
 
-      res.send(newCriteria.toJSON());
+      res.send(subCriterion.toJSON());
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
           return res.status(500).send({
-            error: `Can't create a new criteria. Because existing!!!`
+            error: `Can't create a new SubCriterion. Because existing!!!`
           });
         default:
           res.status(500).send({
-            error: 'Error in create a criteria'
+            error: 'Error in create a SubCriterion'
           });
       }
     }
@@ -80,11 +74,11 @@ module.exports = {
       const { id } = req.params;
       const { attributes } = req.body;
 
-      const criteria = await AUN.findByPk(id);
+      const subCriterion = await AUN_SUB_CRITERION.findByPk(id);
 
-      if (!criteria) {
+      if (!subCriterion) {
         return res.status(404).send({
-          error: 'Not found the criteria has id ' + id
+          error: 'Not found the SubCriterion has id ' + id
         });
       }
 
@@ -108,23 +102,23 @@ module.exports = {
       }
 
       if (name) {
-        await criterion.update({ name });
+        await subCriterion.update({ name });
       }
 
       if (description) {
-        await criterion.update({ description });
+        await subCriterion.update({ description });
       }
 
-      res.send(criteria.toJSON());
+      res.send(subCriterion.toJSON());
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
           return res.status(500).send({
-            error: `Can't update a criteria. Because existing!!!`
+            error: `Can't update a SubCriterion. Because existing!!!`
           });
         default:
           res.status(500).send({
-            error: 'Error in update a criteria'
+            error: 'Error in update a SubCriterion'
           });
       }
     }
@@ -134,19 +128,19 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const criteria = await AUNCriteria.findByPk(id);
+      const subCriterion = await AUN_SUB_CRITERION.findByPk(id);
 
-      if (!criteria) {
+      if (!subCriterion) {
         return res.status(404).send({
-          error: 'Not found the criteria has id ' + id
+          error: 'Not found the SubCriterion has id ' + id
         });
       }
-      await criteria.destroy();
+      await subCriterion.destroy();
 
       res.send({});
     } catch (err) {
       res.status(500).send({
-        error: 'Error in delete a criteria'
+        error: 'Error in delete a SubCriterion'
       });
     }
   }
