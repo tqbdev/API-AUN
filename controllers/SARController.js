@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const { AUNSar } = require('../models');
+const { AUN_SAR } = require('../models');
 
 module.exports = {
   async readAll(req, res) {
@@ -18,7 +18,7 @@ module.exports = {
       }
       const { descending, sortBy, rowsPerPage, page } = pagination;
 
-      const totalItems = await AUNSar.count();
+      const totalItems = await AUN_SAR.count();
       let totalPages = 1;
 
       let params = {};
@@ -33,13 +33,13 @@ module.exports = {
         params.order = [[sortBy, descending ? 'DESC' : 'ASC']];
       }
 
-      const SARs = await AUNSar.findAll(params);
+      const SARs = await AUN_SAR.findAll(params);
 
-      if (!SARs) {
-        return res.status(404).send({
-          error: 'Not found any SARs'
-        });
-      }
+      // if (!SARs) {
+      //   return res.status(404).send({
+      //     error: 'Not found any SARs'
+      //   });
+      // }
 
       res.send({
         SARs,
@@ -57,7 +57,7 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const sar = await AUNSar.findByPk(id);
+      const sar = await AUN_SAR.findByPk(id);
 
       if (!sar) {
         return res.status(404).send({
@@ -76,7 +76,7 @@ module.exports = {
   async create(req, res) {
     try {
       const { name } = req.body;
-      const newSar = await AUNSar.create({ name });
+      const newSar = await AUN_SAR.create({ name });
 
       res.send(newSar.toJSON());
     } catch (err) {
@@ -98,7 +98,7 @@ module.exports = {
       const { id } = req.params;
       const { attributes } = req.body;
 
-      const sar = await AUNSar.findByPk(id);
+      const sar = await AUN_SAR.findByPk(id);
 
       if (!sar) {
         return res.status(404).send({
@@ -141,7 +141,7 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const sar = await AUNSar.findByPk(id);
+      const sar = await AUN_SAR.findByPk(id);
 
       if (!sar) {
         return res.status(404).send({

@@ -1,24 +1,26 @@
 const _ = require('lodash');
 
-const { AUNImplication } = require('../models');
+const { AUN_IMPLICATION } = require('../models');
 
 module.exports = {
   async readAll(req, res) {
     try {
-      const { CriteriaId } = req.query;
-      if (!CriteriaId) {
+      const { SubCriterionId } = req.query;
+      if (!SubCriterionId) {
         return res.status(404).send({
-          error: 'Require CriteriaId param'
+          error: 'Require SubCriterionId param'
         });
       }
 
-      const implications = await AUNImplication.findAll({ id: CriteriaId });
+      const implications = await AUN_IMPLICATION.findAll({
+        where: { SubCriterionId: SubCriterionId }
+      });
 
       if (!implications) {
         return res.status(404).send({
           error:
             'Not found any implications belong to the criteria has id ' +
-            CriteriaId
+            SubCriterionId
         });
       }
 
@@ -34,7 +36,7 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const implication = await AUNImplication.findByPk(id);
+      const implication = await AUN_IMPLICATION.findByPk(id);
 
       if (!implication) {
         return res.status(404).send({
@@ -52,11 +54,11 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const { content, CriteriaId } = req.body;
+      const { content, SubCriterionId } = req.body;
 
-      const implication = await AUNImplication.create({
+      const implication = await AUN_IMPLICATION.create({
         content,
-        AUNCriteriumId: CriteriaId
+        SubCriterionId: SubCriterionId
       });
 
       res.send(implication.toJSON());
@@ -72,7 +74,7 @@ module.exports = {
       const { id } = req.params;
       const { attributes } = req.body;
 
-      const implication = await AUNImplication.findByPk(id);
+      const implication = await AUN_IMPLICATION.findByPk(id);
 
       if (!implication) {
         return res.status(404).send({
@@ -108,7 +110,7 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const implication = await AUNImplication.findByPk(id);
+      const implication = await AUN_IMPLICATION.findByPk(id);
 
       if (!implication) {
         return res.status(404).send({

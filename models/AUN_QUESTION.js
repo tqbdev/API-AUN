@@ -1,17 +1,18 @@
 module.exports = (sequelize, DataTypes) => {
-  const AUNDiaQuestion = sequelize.define('AUNDiaQuestion', {
+  const AUN_QUESTION = sequelize.define('AUN_QUESTION', {
     question: { type: DataTypes.TEXT, allowNull: false },
     answer: { type: DataTypes.TEXT }
   });
 
-  AUNDiaQuestion.associate = function(models) {
-    AUNDiaQuestion.belongsTo(models.AUNCriteria, {
+  AUN_QUESTION.associate = function(models) {
+    AUN_QUESTION.belongsTo(models.AUN_SUB_CRITERION, {
       foreignKey: {
+        name: 'SubCriterionId',
         allowNull: false
       },
       onDetele: 'CASCADE'
     });
   };
 
-  return AUNDiaQuestion;
+  return AUN_QUESTION;
 };

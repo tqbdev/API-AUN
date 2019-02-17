@@ -15,8 +15,8 @@ function hashPassword(user, options) {
 }
 
 module.exports = (sequelize, DataTypes) => {
-  const User = sequelize.define(
-    'User',
+  const AUN_USER = sequelize.define(
+    'AUN_USER',
     {
       email: {
         type: DataTypes.STRING,
@@ -42,9 +42,9 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
-  User.prototype.comparePassword = function(password) {
+  AUN_USER.prototype.comparePassword = function(password) {
     return bcrypt.compareAsync(password, this.password);
   };
 
-  return User;
+  return AUN_USER;
 };

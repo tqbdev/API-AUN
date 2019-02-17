@@ -1,5 +1,5 @@
 const passport = require('passport');
-const { User } = require('./models');
+const { AUN_USER } = require('./models');
 
 const JwtStrategy = require('passport-jwt').Strategy;
 const ExtractJwt = require('passport-jwt').ExtractJwt;
@@ -15,7 +15,7 @@ passport.use(
     },
     async function(jwtPayload, done) {
       try {
-        const user = await User.findByPk(jwtPayload.user.email);
+        const user = await AUN_USER.findByPk(jwtPayload.user.email);
 
         if (!user) {
           return done(new Error(), false);

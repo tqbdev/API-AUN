@@ -2,7 +2,7 @@ const jwt = require('jsonwebtoken');
 const randtoken = require('rand-token');
 const _ = require('lodash');
 
-const { User } = require('../models');
+const { AUN_USER } = require('../models');
 const config = require('../config/config');
 
 function jwtSignUser(user) {
@@ -21,7 +21,7 @@ module.exports = {
   async userSignUp(req, res) {
     try {
       const refreshToken = randtoken.uid(256);
-      const user = await User.create(req.body);
+      const user = await AUN_USER.create(req.body);
 
       await user.update({
         refreshToken
@@ -44,7 +44,7 @@ module.exports = {
   async userSignIn(req, res) {
     try {
       const { email, password } = req.body;
-      const user = await User.findByPk(email);
+      const user = await AUN_USER.findByPk(email);
 
       if (!user) {
         return res.status(403).send({
@@ -84,7 +84,7 @@ module.exports = {
   async userToken(req, res) {
     try {
       const { email, refreshToken } = req.body;
-      const user = await User.findOne({
+      const user = await AUN_USER.findOne({
         where: {
           email,
           refreshToken
@@ -114,7 +114,7 @@ module.exports = {
   async userRevokeToken(req, res) {
     try {
       const { email, refreshToken } = req.body;
-      const user = await User.findOne({
+      const user = await AUN_USER.findOne({
         where: {
           email,
           refreshToken

@@ -9,7 +9,7 @@ const {
   create,
   update,
   remove
-} = require('../controllers/CriteriaController');
+} = require('../controllers/SubCriterionController');
 
 router.get('/', isAuthenticated, readAll);
 router.get('/:id', isAuthenticated, readOne);

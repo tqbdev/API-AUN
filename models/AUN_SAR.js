@@ -1,7 +1,7 @@
 module.exports = (sequelize, DataTypes) => {
-  const AUNSar = sequelize.define('AUNSar', {
+  const AUN_SAR = sequelize.define('AUN_SAR', {
     name: { type: DataTypes.STRING, unique: true }
   });
 
-  return AUNSar;
+  return AUN_SAR;
 };

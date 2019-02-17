@@ -1,6 +1,6 @@
 const _ = require('lodash');
 
-const { AUNCriterion } = require('../models');
+const { AUN_CRITERION } = require('../models');
 
 module.exports = {
   async readAll(req, res) {
@@ -12,15 +12,9 @@ module.exports = {
         });
       }
 
-      const criterions = await AUNCriterion.findAll({
-        where: { AUNSarId: SARId }
+      const criterions = await AUN_CRITERION.findAll({
+        where: { SARId: SARId }
       });
-
-      if (!criterions) {
-        return res.status(404).send({
-          error: 'Not found any criterions belong to the SAR has id ' + SARId
-        });
-      }
 
       res.send(criterions);
     } catch (err) {
@@ -34,7 +28,7 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const criterion = await AUNCriterion.findByPk(id);
+      const criterion = await AUN_CRITERION.findByPk(id);
 
       if (!criterion) {
         return res.status(404).send({
@@ -54,14 +48,15 @@ module.exports = {
     try {
       const { name, SARId, description } = req.body;
 
-      const newCriterion = await AUNCriterion.create({
+      const newCriterion = await AUN_CRITERION.create({
         name,
         description,
-        AUNSarId: SARId
+        SARId: SARId
       });
 
       res.send(newCriterion.toJSON());
     } catch (err) {
+      console.log(err);
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
           return res.status(500).send({
@@ -80,7 +75,7 @@ module.exports = {
       const { id } = req.params;
       const { attributes } = req.body;
 
-      const criterion = await AUNCriterion.findByPk(id);
+      const criterion = await AUN_CRITERION.findByPk(id);
 
       if (!criterion) {
         return res.status(404).send({
@@ -134,7 +129,7 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const criterion = await AUNCriterion.findByPk(id);
+      const criterion = await AUN_CRITERION.findByPk(id);
 
       if (!criterion) {
         return res.status(404).send({
