@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { isAuthenticated } = require('../policies/Authenticated');
+const { isAuthenticated, canCUD } = require('../policies/Authenticated');
 
 const {
   readAll,
@@ -13,8 +13,8 @@ const {
 
 router.get('/', isAuthenticated, readAll);
 router.get('/:id', isAuthenticated, readOne);
-router.post('/', isAuthenticated, create);
-router.patch('/:id', isAuthenticated, update);
-router.delete('/:id', isAuthenticated, remove);
+router.post('/', isAuthenticated, canCUD, create);
+router.patch('/:id', isAuthenticated, canCUD, update);
+router.delete('/:id', isAuthenticated, canCUD, remove);
 
 module.exports = router;

@@ -2,8 +2,13 @@ module.exports = (sequelize, DataTypes) => {
   const AUN_SUB_CRITERION = sequelize.define(
     'AUN_SUB_CRITERION',
     {
-      name: { type: DataTypes.STRING, allowNull: false },
-      description: DataTypes.TEXT
+      name: {
+        type: DataTypes.STRING,
+        allowNull: false
+      },
+      content: {
+        type: DataTypes.TEXT
+      }
     },
     {
       indexes: [

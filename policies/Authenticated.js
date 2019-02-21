@@ -1,3 +1,5 @@
+const AppConstants = require('../app.constants');
+
 const passport = require('passport');
 
 module.exports = {
@@ -12,5 +14,21 @@ module.exports = {
         next();
       }
     })(req, res, next);
+  },
+  // Create, Update and Delete
+  canCUD(req, res, next) {
+    const user = req.user;
+
+    switch (user.role) {
+      case AppConstants.ENUM.ROLE.ADMIN:
+      case AppConstants.ENUM.ROLE.EDITOR:
+        req.isAdmin = user.role === AppConstants.ENUM.ROLE.ADMIN;
+        next();
+        break;
+      default:
+        res.status(403).send({
+          error: 'You do not have access to this resource'
+        });
+    }
   }
 };

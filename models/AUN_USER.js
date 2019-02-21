@@ -1,3 +1,5 @@
+const AppConstants = require('../app.constants');
+
 const Promise = require('bluebird');
 const bcrypt = Promise.promisifyAll(require('bcrypt-nodejs'));
 
@@ -18,6 +20,11 @@ module.exports = (sequelize, DataTypes) => {
   const AUN_USER = sequelize.define(
     'AUN_USER',
     {
+      id: {
+        type: DataTypes.INTEGER,
+        unique: true,
+        autoIncrement: true
+      },
       email: {
         type: DataTypes.STRING,
         primaryKey: true
@@ -26,13 +33,25 @@ module.exports = (sequelize, DataTypes) => {
         type: DataTypes.STRING,
         allowNull: false
       },
-      name: DataTypes.STRING,
-      phone: DataTypes.STRING,
-      isAdmin: {
-        type: DataTypes.BOOLEAN,
-        defaultValue: false
+      name: {
+        type: DataTypes.STRING
       },
-      refreshToken: DataTypes.TEXT
+      phone: {
+        type: DataTypes.STRING
+      },
+      role: {
+        type: DataTypes.ENUM,
+        values: [
+          AppConstants.ENUM.ROLE.ADMIN,
+          AppConstants.ENUM.ROLE.EDITOR,
+          AppConstants.ENUM.ROLE.REVIEWER
+        ],
+        defaultValue: AppConstants.ENUM.ROLE.EDITOR,
+        allowNull: false
+      },
+      refreshToken: {
+        type: DataTypes.TEXT
+      }
     },
     {
       hooks: {
