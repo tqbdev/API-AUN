@@ -32,7 +32,7 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          name: 'SAR - unique name and reversion',
+          name: 'SAR - unique name, reversion and isTemplate',
           fields: ['name', 'reversion', 'isTemplate']
         }
       ]

@@ -4,6 +4,7 @@ const cookieParser = require('cookie-parser');
 const logger = require('morgan');
 const bodyParser = require('body-parser');
 const cors = require('cors');
+const fileUpload = require('express-fileupload');
 
 const { sequelize } = require('./models');
 const config = require('./config/config');
@@ -17,7 +18,8 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(bodyParser.json());
 app.use(cors());
-app.use(express.static(path.join(__dirname, 'storage')));
+app.use('/storage', express.static(path.join(__dirname, 'storage')));
+app.use(fileUpload());
 
 require('./routes')(app);
 

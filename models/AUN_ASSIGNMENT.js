@@ -1,27 +1,27 @@
 module.exports = (sequelize, DataTypes) => {
-  const AUN_ASSGIN = sequelize.define(
-    'AUN_ASSGIN',
+  const AUN_ASSIGNMENT = sequelize.define(
+    'AUN_ASSIGNMENT',
     {},
     {
       indexes: [
         {
           unique: true,
-          name: 'Assign - unique UserEmail and SARId',
+          name: 'Assignment - unique UserEmail and SARId',
           fields: ['UserEmail', 'SARId']
         }
       ]
     }
   );
 
-  AUN_ASSGIN.associate = function(models) {
-    AUN_ASSGIN.belongsTo(models.AUN_USER, {
+  AUN_ASSIGNMENT.associate = function(models) {
+    AUN_ASSIGNMENT.belongsTo(models.AUN_USER, {
       foreignKey: {
         name: 'UserEmail',
         allowNull: false
       },
       onDelete: 'CASCADE'
     });
-    AUN_ASSGIN.belongsTo(models.AUN_SAR, {
+    AUN_ASSIGNMENT.belongsTo(models.AUN_SAR, {
       foreignKey: {
         name: 'SARId',
         allowNull: false
@@ -30,5 +30,5 @@ module.exports = (sequelize, DataTypes) => {
     });
   };
 
-  return AUN_ASSGIN;
+  return AUN_ASSIGNMENT;
 };

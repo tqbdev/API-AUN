@@ -9,7 +9,7 @@ const {
   create,
   update,
   remove
-} = require('../controllers/SubCriterionController');
+} = require('../controllers/SuggestionController');
 
 router.get('/', readAll);
 router.get('/:id', readOne);

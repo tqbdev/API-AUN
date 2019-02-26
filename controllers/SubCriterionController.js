@@ -46,19 +46,19 @@ module.exports = {
 
   async create(req, res) {
     try {
-      let { name, CriterionId, description } = req.body;
+      let { name, CriterionId, content } = req.body;
 
       const subCriterion = await AUN_SUB_CRITERION.create({
         name,
-        description,
-        CriterionId: CriterionId
+        content,
+        CriterionId
       });
 
       res.send(subCriterion.toJSON());
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
-          return res.status(500).send({
+          return res.status(400).send({
             error: `Can't create a new SubCriterion. Because existing!!!`
           });
         default:
@@ -82,22 +82,19 @@ module.exports = {
         });
       }
 
-      if (
-        attributes.name === undefined &&
-        attributes.description === undefined
-      ) {
+      if (attributes.name === undefined && attributes.content === undefined) {
         return res.status(406).send({
-          error: 'Not accepted. Required an attribute "name" or "description"'
+          error: 'Not accepted. Required an attribute "name" or "content"'
         });
       }
 
       const name = attributes.name;
-      const description = attributes.description;
+      const content = attributes.content;
       delete attributes.name;
-      delete attributes.description;
+      delete attributes.content;
       if (!_.isEmpty(attributes)) {
         return res.status(406).send({
-          error: 'Not accepted. Only updatable for "name" and "description"'
+          error: 'Not accepted. Only updatable for "name" and "content"'
         });
       }
 
@@ -105,15 +102,15 @@ module.exports = {
         await subCriterion.update({ name });
       }
 
-      if (description) {
-        await subCriterion.update({ description });
+      if (content) {
+        await subCriterion.update({ content });
       }
 
       res.send(subCriterion.toJSON());
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
-          return res.status(500).send({
+          return res.status(400).send({
             error: `Can't update a SubCriterion. Because existing!!!`
           });
         default:

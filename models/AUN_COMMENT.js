@@ -2,6 +2,9 @@ module.exports = (sequelize, DataTypes) => {
   const AUN_COMMENT = sequelize.define(
     'AUN_COMMENT',
     {
+      title: {
+        type: DataTypes.TEXT
+      },
       content: {
         type: DataTypes.TEXT
       }
@@ -10,8 +13,8 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          name: 'Comment - unique UserEmail and SuggestionId',
-          fields: ['UserEmail', 'SuggestionId']
+          name: 'Comment - unique UserEmail and SubCriterionId',
+          fields: ['UserEmail', 'SubCriterionId']
         }
       ]
     }
@@ -25,9 +28,9 @@ module.exports = (sequelize, DataTypes) => {
       },
       onDelete: 'CASCADE'
     });
-    AUN_COMMENT.belongsTo(models.AUN_SUGGESTION, {
+    AUN_COMMENT.belongsTo(models.AUN_SUB_CRITERION, {
       foreignKey: {
-        name: 'SuggestionId',
+        name: 'SubCriterionId',
         allowNull: false
       },
       onDelete: 'CASCADE'

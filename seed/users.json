@@ -3,4 +3,10 @@
   "phone": "0934209123",
   "password": "123",
   "name": "Nguyen Van A"
+}, {
+  "email": "124@gmail.com",
+  "phone": "0934209123",
+  "password": "124",
+  "name": "Nguyen Van B",
+  "role": "ADMIN"
 }]
