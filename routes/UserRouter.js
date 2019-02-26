@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { adminOnly } = require('../policies/Authenticated');
+const { signup } = require('../policies/AuthenticationControllerPolicy');
 
 const {
   readAll,
@@ -9,11 +9,11 @@ const {
   create,
   update,
   remove
-} = require('../controllers/SARController');
+} = require('../controllers/UserController');
 
 router.get('/', readAll);
 router.get('/:id', readOne);
-router.post('/', create);
+router.post('/', signup, create);
 router.patch('/:id', update);
 router.delete('/:id', remove);
 

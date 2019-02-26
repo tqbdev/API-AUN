@@ -1,51 +1,56 @@
 const _ = require('lodash');
+const Op = require('sequelize').Op;
 
-const { AUN_SAR } = require('../models');
+const { AUN_SAR, AUN_ASSIGNMENT } = require('../models');
+
+renameKey = (obj, oldKey, newKey) => {
+  if (_.has(obj, oldKey)) {
+    obj[newKey] = _.clone(obj[oldKey]);
+    delete obj[oldKey];
+  }
+
+  return obj;
+};
 
 module.exports = {
   async readAll(req, res) {
     try {
-      let pagination = null;
-      if (req.query.pagination) {
-        pagination = JSON.parse(req.query.pagination);
+      const user = req.user;
+      let sars = [];
+
+      if (req.isAdmin) {
+        sars = await AUN_SAR.findAll({});
+        sars = _.chain(sars)
+          .groupBy('isTemplate')
+          .toJSON();
+
+        sars = renameKey(sars, 'true', 'templates');
+        sars = renameKey(sars, 'false', 'projects');
       } else {
-        pagination = {
-          descending: false,
-          sortBy: null,
-          rowsPerPage: 5,
-          page: 1
-        };
+        const sarIds = await AUN_ASSIGNMENT.findAll({
+          where: {
+            UserEmail: user.email
+          },
+          attributes: ['SARId'],
+          raw: true
+        }).then(function(assignments) {
+          return _.map(assignments, function(assignment) {
+            return assignment.SARId;
+          });
+        });
+
+        if (_.get(sarIds, 'length')) {
+          sars = await AUN_SAR.findAll({
+            where: {
+              id: {
+                [Op.or]: sarIds
+              }
+            }
+          });
+        }
       }
-      const { descending, sortBy, rowsPerPage, page } = pagination;
 
-      const totalItems = await AUN_SAR.count();
-      let totalPages = 1;
-
-      let params = {};
-
-      if (+rowsPerPage > 0) {
-        params.limit = +rowsPerPage;
-        params.offset = (+page - 1) * +rowsPerPage;
-        totalPages = Math.ceil(totalItems / +rowsPerPage);
-      }
-
-      if (sortBy) {
-        params.order = [[sortBy, descending ? 'DESC' : 'ASC']];
-      }
-
-      const SARs = await AUN_SAR.findAll(params);
-
-      // if (!SARs) {
-      //   return res.status(404).send({
-      //     error: 'Not found any SARs'
-      //   });
-      // }
-
-      res.send({
-        SARs,
-        totalItems,
-        totalPages
-      });
+      res.send(sars);
     } catch (err) {
       res.status(500).send({
         error: 'Error in get SARs.'
@@ -56,6 +61,22 @@ module.exports = {
   async readOne(req, res) {
     try {
       const { id } = req.params;
+      const user = req.user;
+
+      if (!req.isAdmin) {
+        const assignment = await AUN_ASSIGNMENT.findOne({
+          where: {
+            UserEmail: user.email,
+            SARId: id
+          }
+        });
+
+        if (!assignment) {
+          return res.status(403).send({
+            error: 'You do not have access to this resource'
+          });
+        }
+      }
 
       const sar = await AUN_SAR.findByPk(id);
 
@@ -76,13 +97,13 @@ module.exports = {
   async create(req, res) {
     try {
       const { name } = req.body;
-      const newSar = await AUN_SAR.create({ name });
+      const sar = await AUN_SAR.create({ name });
 
-      res.send(newSar.toJSON());
+      res.send(sar.toJSON());
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
-          return res.status(500).send({
+          return res.status(400).send({
             error: `Can't create a new SAR. Because existing!!!`
           });
         default:
@@ -126,7 +147,7 @@ module.exports = {
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
-          return res.status(500).send({
+          return res.status(400).send({
             error: `Can't update a SAR. Because existing!!!`
           });
         default:

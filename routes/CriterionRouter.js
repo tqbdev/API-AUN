@@ -1,7 +1,7 @@
 const express = require('express');
 const router = express.Router();
 
-const { isAuthenticated, canCUD } = require('../policies/Authenticated');
+const { canCUD } = require('../policies/Authenticated');
 
 const {
   readAll,
@@ -11,10 +11,10 @@ const {
   remove
 } = require('../controllers/CriterionController');
 
-router.get('/', isAuthenticated, readAll);
-router.get('/:id', isAuthenticated, readOne);
-router.post('/', isAuthenticated, canCUD, create);
-router.patch('/:id', isAuthenticated, canCUD, update);
-router.delete('/:id', isAuthenticated, canCUD, remove);
+router.get('/', readAll);
+router.get('/:id', readOne);
+router.post('/', canCUD, create);
+router.patch('/:id', canCUD, update);
+router.delete('/:id', canCUD, remove);
 
 module.exports = router;

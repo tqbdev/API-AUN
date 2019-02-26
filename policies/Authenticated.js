@@ -10,7 +10,8 @@ module.exports = {
           error: 'You do not have access to this resource'
         });
       } else {
-        req.user = user;
+        req.user = user.toJSON();
+        req.isAdmin = user.role === AppConstants.ENUM.ROLE.ADMIN;
         next();
       }
     })(req, res, next);
@@ -22,7 +23,6 @@ module.exports = {
     switch (user.role) {
       case AppConstants.ENUM.ROLE.ADMIN:
       case AppConstants.ENUM.ROLE.EDITOR:
-        req.isAdmin = user.role === AppConstants.ENUM.ROLE.ADMIN;
         next();
         break;
       default:

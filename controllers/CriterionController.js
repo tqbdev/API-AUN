@@ -56,10 +56,9 @@ module.exports = {
 
       res.send(newCriterion.toJSON());
     } catch (err) {
-      console.log(err);
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
-          return res.status(500).send({
+          return res.status(400).send({
             error: `Can't create a new Criterion. Because existing!!!`
           });
         default:
@@ -114,7 +113,7 @@ module.exports = {
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
-          return res.status(500).send({
+          return res.status(400).send({
             error: `Can't update a criterion. Because existing!!!`
           });
         default:
