@@ -22,6 +22,8 @@ module.exports = {
 
       CommentId = _.get(req, 'params.id') || null;
       await isCommentBelongToUser(CommentId, user);
+
+      next();
     } catch (err) {
       res.status(403).send({
         error: 'You do not have access to this resource'

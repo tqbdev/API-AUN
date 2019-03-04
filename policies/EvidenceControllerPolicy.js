@@ -16,6 +16,8 @@ module.exports = {
 
       SuggestionId = _.get(req, 'body.SuggestionId') || null;
       await isSuggestionBelongToUser(SuggestionId, user);
+
+      next();
     } catch (err) {
       res.status(403).send({
         error: 'You do not have access to this resource'

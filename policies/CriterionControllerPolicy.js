@@ -19,7 +19,10 @@ module.exports = {
 
       CriterionId = _.get(req, 'params.id') || null;
       await isCriterionBelongToUser(CriterionId, user);
+
+      next();
     } catch (err) {
+      console.log(err);
       res.status(403).send({
         error: 'You do not have access to this resource'
       });

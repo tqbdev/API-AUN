@@ -25,6 +25,7 @@ module.exports = {
 
       next();
     } catch (err) {
+      console.log(err);
       res.status(403).send({
         error: 'You do not have access to this resource'
       });

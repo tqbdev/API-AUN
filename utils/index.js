@@ -10,106 +10,79 @@ const {
   AUN_EVIDENCE
 } = require('../models');
 
-module.exports = {
-  async isSARBelongToUser(id, user) {
-    if (id) {
-      const assignment = await AUN_ASSIGNMENT.findOne({
-        where: {
-          UserEmail: user.email,
-          id
-        }
-      });
-
-      if (!assignment) throw new Error();
-    }
-  },
-
-  async isCriterionBelongToUser(id, user) {
-    if (id) {
-      const criterion = await AUN_CRITERION.findByPk(id);
-
-      if (criterion) {
-        await isSARBelongToUser(criterion.id, user);
-      }
-    }
-  },
-
-  async isSubCriterionBelongToUser(id, user) {
-    if (id) {
-      const subCriterion = await AUN_SUB_CRITERION.findByPk(id);
-
-      if (subCriterion) {
-        await isCriterionBelongToUser(subCriterion.id, user);
-      }
-    }
-  },
-
-  async isSuggestionBelongToUser(id, user) {
-    if (id) {
-      const suggestion = await AUN_SUGGESTION.findByPk(id);
-
-      if (suggestion) {
-        await isCriterionBelongToUser(suggestion.id, user);
-      }
-    }
-  },
-
-  async isCommentBelongToUser(id, user) {
-    if (id && user) {
-      const comment = await AUN_COMMENT.findOne({
-        where: {
-          UserEmail: user.email,
-          id: id
-        }
-      });
-
-      if (comment) {
-        await isSubCriterionBelongToUser(comment.SubCriterionId, user);
-      }
-    }
-  },
-
-  async isEvidenceBelongToUser(id, user) {
-    if (id && user) {
-      const evidence = await AUN_EVIDENCE.findOne({
-        where: {
-          id: id
-        }
-      });
-
-      if (evidence) {
-        await isSuggestionBelongToUser(evidence.SuggestionId, user);
-      }
-    }
-  },
-
-  // Request oldSARId and return newSARId
-  async cloneSAR(oldSARId) {
-    let oldSAR = await AUN_SAR.findByPk(oldSARId);
-
-    oldSAR = oldSAR.toJSON();
-
-    let criterions = await AUN_CRITERION.findAll({
+const isSARBelongToUser = async (id, user) => {
+  if (id) {
+    const assignment = await AUN_ASSIGNMENT.findOne({
       where: {
-        SARId: oldSAR.id
+        UserEmail: user.email,
+        SARId: id
       }
     });
 
-    delete oldSAR.id;
-    oldSAR.isTemplate = false;
-
-    const newSAR = await AUN_SAR.create(oldSAR);
-
-    await _.forEach(criterions, async criterionRaw => {
-      const criterion = criterionRaw.toJSON();
-      await cloneChildCriterion(criterion, newSAR.id);
-    });
-
-    return newSAR.id;
+    if (!assignment) throw new Error();
   }
 };
 
-cloneChildCriterion = async (criterion, newSARId) => {
+const isCriterionBelongToUser = async (id, user) => {
+  if (id) {
+    const criterion = await AUN_CRITERION.findByPk(id);
+
+    if (criterion) {
+      await isSARBelongToUser(criterion.SARId, user);
+    }
+  }
+};
+
+const isSubCriterionBelongToUser = async (id, user) => {
+  if (id) {
+    const subCriterion = await AUN_SUB_CRITERION.findByPk(id);
+
+    if (subCriterion) {
+      await isCriterionBelongToUser(subCriterion.CriterionId, user);
+    }
+  }
+};
+
+const isSuggestionBelongToUser = async (id, user) => {
+  if (id) {
+    const suggestion = await AUN_SUGGESTION.findByPk(id);
+
+    if (suggestion) {
+      await isCriterionBelongToUser(suggestion.CriterionId, user);
+    }
+  }
+};
+
+const isCommentBelongToUser = async (id, user) => {
+  if (id && user) {
+    const comment = await AUN_COMMENT.findOne({
+      where: {
+        UserEmail: user.email,
+        id: id
+      }
+    });
+
+    if (comment) {
+      await isSubCriterionBelongToUser(comment.SubCriterionId, user);
+    }
+  }
+};
+
+const isEvidenceBelongToUser = async (id, user) => {
+  if (id && user) {
+    const evidence = await AUN_EVIDENCE.findOne({
+      where: {
+        id: id
+      }
+    });
+
+    if (evidence) {
+      await isSuggestionBelongToUser(evidence.SuggestionId, user);
+    }
+  }
+};
+
+const cloneChildCriterion = async (criterion, newSARId) => {
   let oldCriterion = _.cloneDeep(criterion);
   delete oldCriterion.id;
   oldCriterion.SARId = newSARId;
@@ -144,4 +117,38 @@ cloneChildCriterion = async (criterion, newSARId) => {
   });
 
   await AUN_SUGGESTION.bulkCreate(suggestions);
+};
+
+const cloneSAR = async oldSARId => {
+  let oldSAR = await AUN_SAR.findByPk(oldSARId);
+
+  oldSAR = oldSAR.toJSON();
+
+  let criterions = await AUN_CRITERION.findAll({
+    where: {
+      SARId: oldSAR.id
+    }
+  });
+
+  delete oldSAR.id;
+  oldSAR.isTemplate = false;
+
+  const newSAR = await AUN_SAR.create(oldSAR);
+
+  await _.forEach(criterions, async criterionRaw => {
+    const criterion = criterionRaw.toJSON();
+    await cloneChildCriterion(criterion, newSAR.id);
+  });
+
+  return newSAR.id;
+};
+
+module.exports = {
+  isSARBelongToUser,
+  isCriterionBelongToUser,
+  isSubCriterionBelongToUser,
+  isSuggestionBelongToUser,
+  isCommentBelongToUser,
+  isEvidenceBelongToUser,
+  cloneSAR
 };
