@@ -95,8 +95,10 @@ module.exports = {
 
       const type = attributes.type;
       const content = attributes.content;
+      const status = attributes.status;
       delete attributes.type;
       delete attributes.content;
+      delete attributes.status;
       if (!_.isEmpty(attributes)) {
         return res.status(406).send({
           error:
@@ -110,6 +112,10 @@ module.exports = {
 
       if (content) {
         await sugesstion.update({ content });
+      }
+
+      if (status) {
+        await sugesstion.update({ status });
       }
 
       res.send(sugesstion.toJSON());
