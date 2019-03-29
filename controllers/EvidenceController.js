@@ -134,7 +134,6 @@ module.exports = {
       const { attributes } = req.body;
 
       const evidence = await AUN_EVIDENCE.findByPk(id);
-      console.log(await evidence.getSuggestion());
 
       if (!evidence) {
         return res.status(404).send({

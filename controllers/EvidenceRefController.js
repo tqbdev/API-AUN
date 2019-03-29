@@ -17,7 +17,8 @@ module.exports = {
         include: [
           {
             model: AUN_SUB_CRITERION,
-            as: 'SubCriterion'
+            as: 'SubCriterion',
+            attributes: ['id', 'name', 'CriterionId', 'createdAt', 'updatedAt']
           }
         ]
       });
