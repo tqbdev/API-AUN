@@ -26,6 +26,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'UserEmail',
         allowNull: false
       },
+      as: 'User',
       onDelete: 'CASCADE'
     });
     AUN_COMMENT.belongsTo(models.AUN_SUB_CRITERION, {
@@ -33,6 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'SubCriterionId',
         allowNull: false
       },
+      as: 'SubCriterion',
       onDelete: 'CASCADE'
     });
   };

@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const logger = require('log4js').getLogger('error');
 
 const { AUN_SAR, AUN_ASSIGNMENT } = require('../models');
 
@@ -10,6 +11,7 @@ module.exports = {
       const assignments = await AUN_ASSIGNMENT.findAll({});
       res.send(assignments);
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get assignments.'
       });
@@ -30,6 +32,7 @@ module.exports = {
 
       res.send(assignment.toJSON());
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get a assignment'
       });
@@ -65,6 +68,7 @@ module.exports = {
             error: `Can't create a new assignment. Because existing!!!`
           });
         default:
+          logger.error(err);
           res.status(500).send({
             error: 'Error in create a assignment'
           });
@@ -87,6 +91,7 @@ module.exports = {
 
       res.send({});
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in delete a assignment'
       });

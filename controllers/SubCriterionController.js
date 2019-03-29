@@ -1,6 +1,9 @@
 const _ = require('lodash');
+const logger = require('log4js').getLogger('error');
 
-const { AUN_SUB_CRITERION } = require('../models');
+const { AUN_SUB_CRITERION, AUN_EVIDENCE_REF, sequelize } = require('../models');
+
+const { findEvidence } = require('../utils');
 
 module.exports = {
   async readAll(req, res) {
@@ -18,6 +21,7 @@ module.exports = {
 
       res.send(SubCriterions);
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get SubCriterions'
       });
@@ -38,6 +42,7 @@ module.exports = {
 
       res.send(subCriterion.toJSON());
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get a SubCriterion'
       });
@@ -54,6 +59,16 @@ module.exports = {
         CriterionId
       });
 
+      const evidences = await findEvidence(content);
+      await _.forEach(evidences, async evidence => {
+        const evi = evidence.toJSON();
+        await AUN_EVIDENCE_REF.create({
+          SubCriterionId: subCriterion.id,
+          EvidenceId: evi.id,
+          total: 1
+        });
+      });
+
       res.send(subCriterion.toJSON());
     } catch (err) {
       switch (err.name) {
@@ -62,6 +77,7 @@ module.exports = {
             error: `Can't create a new SubCriterion. Because existing!!!`
           });
         default:
+          logger.error(err);
           res.status(500).send({
             error: 'Error in create a SubCriterion'
           });
@@ -104,6 +120,22 @@ module.exports = {
 
       if (content) {
         await subCriterion.update({ content });
+        await sequelize.query(
+          'DELETE FROM AUN_EVIDENCE_REFs WHERE SubCriterionId = :SubCriterionId',
+          {
+            replacements: { SubCriterionId: subCriterion.id },
+            type: sequelize.QueryTypes.DELETE
+          }
+        );
+        const evidences = await findEvidence(content);
+        await _.forEach(evidences, async evidence => {
+          const evi = evidence.toJSON();
+          await AUN_EVIDENCE_REF.create({
+            SubCriterionId: subCriterion.id,
+            EvidenceId: evi.id,
+            total: 1
+          });
+        });
       }
 
       res.send(subCriterion.toJSON());
@@ -114,6 +146,7 @@ module.exports = {
             error: `Can't update a SubCriterion. Because existing!!!`
           });
         default:
+          logger.error(err);
           res.status(500).send({
             error: 'Error in update a SubCriterion'
           });
@@ -136,6 +169,7 @@ module.exports = {
 
       res.send({});
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in delete a SubCriterion'
       });

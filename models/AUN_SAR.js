@@ -39,5 +39,25 @@ module.exports = (sequelize, DataTypes) => {
     }
   );
 
+  AUN_SAR.associate = function(models) {
+    AUN_SAR.hasMany(models.AUN_CRITERION, {
+      foreignKey: {
+        name: 'SARId',
+        allowNull: false
+      },
+      as: 'Criterion',
+      onDelete: 'CASCADE'
+    });
+    AUN_SAR.belongsToMany(models.AUN_USER, {
+      foreignKey: {
+        name: 'SARId',
+        allowNull: false
+      },
+      as: 'User',
+      through: models.AUN_ASSIGNMENT,
+      onDelete: 'CASCADE'
+    });
+  };
+
   return AUN_SAR;
 };

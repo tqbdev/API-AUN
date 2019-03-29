@@ -15,17 +15,16 @@ module.exports = {
 
       let CriterionId = null;
       CriterionId = _.get(req, 'query.CriterionId') || null;
-      await isCriterionBelongToUser(CriterionId, user);
+      await isCriterionBelongToUser(CriterionId, user, req);
 
       CriterionId = _.get(req, 'body.CriterionId') || null;
-      await isCriterionBelongToUser(CriterionId, user);
+      await isCriterionBelongToUser(CriterionId, user, req);
 
       SubCriterionId = _.get(req, 'params.id') || null;
-      await isSubCriterionBelongToUser(SubCriterionId, user);
+      await isSubCriterionBelongToUser(SubCriterionId, user, req);
 
       next();
     } catch (err) {
-      console.log(err);
       res.status(403).send({
         error: 'You do not have access to this resource'
       });

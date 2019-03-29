@@ -7,6 +7,7 @@ const AssignmentRouter = require('./AssignmentRouter');
 const SuggestionRouter = require('./SuggestionRouter');
 const CommentRouter = require('./CommentRouter');
 const EvidenceRouter = require('./EvidenceRouter');
+const EvidenceRefRouter = require('./EvidenceRefRouter');
 const UserRouter = require('./UserRouter');
 
 // Policies
@@ -18,6 +19,7 @@ const AssignmentControllerPolicy = require('../policies//AssignmentControllerPol
 const SuggestionControllerPolicy = require('../policies//SuggestionControllerPolicy');
 const CommentControllerPolicy = require('../policies//CommentControllerPolicy');
 const UserControllerPolicy = require('../policies//UserControllerPolicy');
+const EvidenceControllerPolicy = require('../policies//EvidenceControllerPolicy');
 
 module.exports = app => {
   app.use(CommonRouter);
@@ -55,8 +57,14 @@ module.exports = app => {
   app.use(
     '/evidences',
     isAuthenticated,
-    // CommentControllerPolicy.permission,
+    EvidenceControllerPolicy.permission,
     EvidenceRouter
+  );
+  app.use(
+    '/references',
+    isAuthenticated,
+    // EvidenceControllerPolicy.permission,
+    EvidenceRefRouter
   );
   app.use(
     '/users',

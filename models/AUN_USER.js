@@ -65,5 +65,26 @@ module.exports = (sequelize, DataTypes) => {
     return bcrypt.compareAsync(password, this.password);
   };
 
+  AUN_USER.associate = function(models) {
+    AUN_USER.belongsToMany(models.AUN_SAR, {
+      foreignKey: {
+        name: 'UserEmail',
+        allowNull: false
+      },
+      as: 'SAR',
+      through: models.AUN_ASSIGNMENT,
+      onDelete: 'CASCADE'
+    });
+    AUN_USER.belongsToMany(models.AUN_SUB_CRITERION, {
+      foreignKey: {
+        name: 'UserEmail',
+        allowNull: false
+      },
+      as: 'SubCriterion',
+      through: models.AUN_COMMENT,
+      onDelete: 'CASCADE'
+    });
+  };
+
   return AUN_USER;
 };

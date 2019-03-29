@@ -12,17 +12,16 @@ module.exports = {
 
       let SARId = null;
       SARId = _.get(req, 'query.SARId') || null;
-      await isSARBelongToUser(SARId, user);
+      await isSARBelongToUser(SARId, user, req);
 
       SARId = _.get(req, 'body.SARId') || null;
-      await isSARBelongToUser(SARId, user);
+      await isSARBelongToUser(SARId, user, req);
 
       CriterionId = _.get(req, 'params.id') || null;
-      await isCriterionBelongToUser(CriterionId, user);
+      await isCriterionBelongToUser(CriterionId, user, req);
 
       next();
     } catch (err) {
-      console.log(err);
       res.status(403).send({
         error: 'You do not have access to this resource'
       });

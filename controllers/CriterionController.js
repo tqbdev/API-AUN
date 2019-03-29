@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const logger = require('log4js').getLogger('error');
 
 const { AUN_CRITERION } = require('../models');
 
@@ -18,6 +19,7 @@ module.exports = {
 
       res.send(criterions);
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get criterions'
       });
@@ -38,6 +40,7 @@ module.exports = {
 
       res.send(criterion.toJSON());
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get a criterion'
       });
@@ -62,6 +65,7 @@ module.exports = {
             error: `Can't create a new Criterion. Because existing!!!`
           });
         default:
+          logger.error(err);
           res.status(500).send({
             error: 'Error in create a Criterion'
           });
@@ -117,6 +121,7 @@ module.exports = {
             error: `Can't update a criterion. Because existing!!!`
           });
         default:
+          logger.error(err);
           res.status(500).send({
             error: 'Error in update a criterion'
           });
@@ -139,6 +144,7 @@ module.exports = {
 
       res.send({});
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in delete a criterion'
       });

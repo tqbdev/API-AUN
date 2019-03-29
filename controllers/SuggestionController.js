@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const logger = require('log4js').getLogger('error');
 
 const { AUN_SUGGESTION } = require('../models');
 
@@ -18,6 +19,7 @@ module.exports = {
 
       res.send(sugesstions);
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get sugesstions'
       });
@@ -38,6 +40,7 @@ module.exports = {
 
       res.send(sugesstion.toJSON());
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get a suggestion'
       });
@@ -62,6 +65,7 @@ module.exports = {
             error: `Can't create a new suggestion. Because existing!!!`
           });
         default:
+          logger.error(err);
           res.status(500).send({
             error: 'Error in create a suggestion'
           });
@@ -126,6 +130,7 @@ module.exports = {
             error: `Can't update a suggestion. Because existing!!!`
           });
         default:
+          logger.error(err);
           res.status(500).send({
             error: 'Error in update a suggestion'
           });
@@ -148,6 +153,7 @@ module.exports = {
 
       res.send({});
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in delete a suggestion'
       });

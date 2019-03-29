@@ -1,6 +1,7 @@
 const jwt = require('jsonwebtoken');
 const randtoken = require('rand-token');
 const _ = require('lodash');
+const logger = require('log4js').getLogger('error');
 
 const { AUN_USER } = require('../models');
 const config = require('../config/config');
@@ -35,6 +36,7 @@ module.exports = {
         refreshToken
       });
     } catch (err) {
+      logger.error(err);
       res.status(400).send({
         error: 'This email is already in use.'
       });
@@ -75,6 +77,7 @@ module.exports = {
         refreshToken
       });
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'An error has occured trying to login'
       });
@@ -105,6 +108,7 @@ module.exports = {
         token: jwtSignUser(userJson)
       });
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'An error has occured trying to login'
       });
@@ -135,6 +139,7 @@ module.exports = {
         msg: 'Revoke token successfully'
       });
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'An error has occured trying to revoke token'
       });

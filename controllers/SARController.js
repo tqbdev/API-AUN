@@ -1,5 +1,6 @@
 const _ = require('lodash');
 const Op = require('sequelize').Op;
+const logger = require('log4js').getLogger('error');
 
 const { AUN_SAR, AUN_ASSIGNMENT } = require('../models');
 
@@ -52,6 +53,7 @@ module.exports = {
 
       res.send(sars);
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get SARs.'
       });
@@ -88,6 +90,7 @@ module.exports = {
 
       res.send(sar.toJSON());
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get a SAR'
       });
@@ -107,6 +110,7 @@ module.exports = {
             error: `Can't create a new SAR. Because existing!!!`
           });
         default:
+          logger.error(err);
           res.status(500).send({
             error: 'Error in create a SAR'
           });
@@ -151,6 +155,7 @@ module.exports = {
             error: `Can't update a SAR. Because existing!!!`
           });
         default:
+          logger.error(err);
           res.status(500).send({
             error: 'Error in update a SAR'
           });
@@ -173,6 +178,7 @@ module.exports = {
 
       res.send({});
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in delete a Sar'
       });

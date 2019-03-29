@@ -15,13 +15,13 @@ module.exports = {
 
       let SubCriterionId = null;
       SubCriterionId = _.get(req, 'query.SubCriterionId') || null;
-      await isSubCriterionBelongToUser(SubCriterionId, user);
+      await isSubCriterionBelongToUser(SubCriterionId, user, req);
 
       SubCriterionId = _.get(req, 'body.SubCriterionId') || null;
-      await isSubCriterionBelongToUser(SubCriterionId, user);
+      await isSubCriterionBelongToUser(SubCriterionId, user, req);
 
       CommentId = _.get(req, 'params.id') || null;
-      await isCommentBelongToUser(CommentId, user);
+      await isCommentBelongToUser(CommentId, user, req);
 
       next();
     } catch (err) {
