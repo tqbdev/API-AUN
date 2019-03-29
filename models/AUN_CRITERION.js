@@ -29,6 +29,22 @@ module.exports = (sequelize, DataTypes) => {
       },
       onDelete: 'CASCADE'
     });
+    AUN_CRITERION.hasMany(models.AUN_SUB_CRITERION, {
+      foreignKey: {
+        name: 'CriterionId',
+        allowNull: false
+      },
+      as: 'SubCriterion',
+      onDelete: 'CASCADE'
+    });
+    AUN_CRITERION.hasMany(models.AUN_SUGGESTION, {
+      foreignKey: {
+        name: 'CriterionId',
+        allowNull: false
+      },
+      as: 'Suggestion',
+      onDelete: 'CASCADE'
+    });
   };
 
   return AUN_CRITERION;

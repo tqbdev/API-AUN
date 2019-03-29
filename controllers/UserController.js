@@ -1,8 +1,7 @@
 const _ = require('lodash');
+const logger = require('log4js').getLogger('error');
 
 const { AUN_USER } = require('../models');
-
-const { cloneSAR } = require('../utils');
 
 module.exports = {
   async readAll(req, res) {
@@ -10,6 +9,7 @@ module.exports = {
       const users = await AUN_USER.findAll({});
       res.send(users);
     } catch (err) {
+      logger.logger(err);
       res.status(500).send({
         error: 'Error in get users.'
       });
@@ -34,6 +34,7 @@ module.exports = {
 
       res.send(user.toJSON());
     } catch (err) {
+      logger.logger(err);
       res.status(500).send({
         error: 'Error in get a user'
       });
@@ -52,6 +53,7 @@ module.exports = {
             error: `Can't create a new user. Because existing!!!`
           });
         default:
+          logger.logger(err);
           res.status(500).send({
             error: 'Error in create a user'
           });
@@ -117,9 +119,17 @@ module.exports = {
 
       res.send(userJSON);
     } catch (err) {
-      res.status(500).send({
-        error: 'Error in update a user'
-      });
+      switch (err.name) {
+        case 'SequelizeUniqueConstraintError':
+          return res.status(400).send({
+            error: `Can't update user. Because existing!!!`
+          });
+        default:
+          logger.logger(err);
+          res.status(500).send({
+            error: 'Error in update user'
+          });
+      }
     }
   },
 
@@ -142,6 +152,7 @@ module.exports = {
 
       res.send({});
     } catch (err) {
+      logger.logger(err);
       res.status(500).send({
         error: 'Error in delete a user'
       });

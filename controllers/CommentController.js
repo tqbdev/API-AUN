@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const logger = require('log4js').getLogger('error');
 
 const { AUN_COMMENT } = require('../models');
 
@@ -22,6 +23,7 @@ module.exports = {
 
       res.send(comments);
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get comments'
       });
@@ -42,6 +44,7 @@ module.exports = {
 
       res.send(comment.toJSON());
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in get a comment'
       });
@@ -62,6 +65,7 @@ module.exports = {
 
       res.send(comment.toJSON());
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in create a comment'
       });
@@ -107,6 +111,7 @@ module.exports = {
 
       res.send(comment.toJSON());
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in update a comment'
       });
@@ -128,6 +133,7 @@ module.exports = {
 
       res.send({});
     } catch (err) {
+      logger.error(err);
       res.status(500).send({
         error: 'Error in delete a comment'
       });

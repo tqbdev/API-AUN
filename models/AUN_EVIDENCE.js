@@ -19,7 +19,7 @@ module.exports = (sequelize, DataTypes) => {
     },
     code: {
       type: DataTypes.STRING,
-      allowNull: false
+      allowNull: true
     }
   });
 
@@ -36,6 +36,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'SuggestionId',
         allowNull: false
       },
+      as: 'Suggestion',
       onDelete: 'CASCADE'
     });
   };

@@ -12,13 +12,13 @@ module.exports = {
 
       let SARId = null;
       SARId = _.get(req, 'query.SARId') || null;
-      await isSARBelongToUser(SARId, user);
+      await isSARBelongToUser(SARId, user, req);
 
       SARId = _.get(req, 'body.SARId') || null;
-      await isSARBelongToUser(SARId, user);
+      await isSARBelongToUser(SARId, user, req);
 
       CriterionId = _.get(req, 'params.id') || null;
-      await isCriterionBelongToUser(CriterionId, user);
+      await isCriterionBelongToUser(CriterionId, user, req);
 
       next();
     } catch (err) {

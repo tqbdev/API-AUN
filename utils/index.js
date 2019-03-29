@@ -1,4 +1,7 @@
 const _ = require('lodash');
+const Op = require('sequelize').Op;
+
+const AppContanst = require('../app.constants');
 
 const {
   AUN_SAR,
@@ -10,7 +13,7 @@ const {
   AUN_EVIDENCE
 } = require('../models');
 
-const isSARBelongToUser = async (id, user) => {
+const isSARBelongToUser = async (id, user, req) => {
   if (id) {
     const assignment = await AUN_ASSIGNMENT.findOne({
       where: {
@@ -23,7 +26,7 @@ const isSARBelongToUser = async (id, user) => {
   }
 };
 
-const isCriterionBelongToUser = async (id, user) => {
+const isCriterionBelongToUser = async (id, user, req) => {
   if (id) {
     const criterion = await AUN_CRITERION.findByPk(id);
 
@@ -33,7 +36,7 @@ const isCriterionBelongToUser = async (id, user) => {
   }
 };
 
-const isSubCriterionBelongToUser = async (id, user) => {
+const isSubCriterionBelongToUser = async (id, user, req) => {
   if (id) {
     const subCriterion = await AUN_SUB_CRITERION.findByPk(id);
 
@@ -43,7 +46,7 @@ const isSubCriterionBelongToUser = async (id, user) => {
   }
 };
 
-const isSuggestionBelongToUser = async (id, user) => {
+const isSuggestionBelongToUser = async (id, user, req) => {
   if (id) {
     const suggestion = await AUN_SUGGESTION.findByPk(id);
 
@@ -53,7 +56,7 @@ const isSuggestionBelongToUser = async (id, user) => {
   }
 };
 
-const isCommentBelongToUser = async (id, user) => {
+const isCommentBelongToUser = async (id, user, req) => {
   if (id && user) {
     const comment = await AUN_COMMENT.findOne({
       where: {
@@ -68,7 +71,7 @@ const isCommentBelongToUser = async (id, user) => {
   }
 };
 
-const isEvidenceBelongToUser = async (id, user) => {
+const isEvidenceBelongToUser = async (id, user, req) => {
   if (id && user) {
     const evidence = await AUN_EVIDENCE.findOne({
       where: {
@@ -143,6 +146,70 @@ const cloneSAR = async oldSARId => {
   return newSAR.id;
 };
 
+const findEvidence = async content => {
+  let fileKeys = content.match(
+    new RegExp(
+      AppContanst.PATTERN.EVIDENCE.source,
+      AppContanst.PATTERN.EVIDENCE.flags
+    )
+  );
+  if (fileKeys) {
+    fileKeys = fileKeys.map(match => {
+      const keywords = new RegExp(
+        AppContanst.PATTERN.EVIDENCE.source,
+        AppContanst.PATTERN.EVIDENCE.flags
+      ).exec(match)[4];
+      if (keywords === '') return null;
+      return { [Op.like]: '%' + keywords };
+    });
+    fileKeys = _.filter(fileKeys, key => {
+      return key !== null && key !== '';
+    });
+  }
+
+  let linkKeys = content.match(
+    new RegExp(
+      AppContanst.PATTERN.EVIDENCE.source,
+      AppContanst.PATTERN.EVIDENCE.flags
+    )
+  );
+  if (linkKeys) {
+    linkKeys = linkKeys.map(match => {
+      const keywords = new RegExp(
+        AppContanst.PATTERN.EVIDENCE.source,
+        AppContanst.PATTERN.EVIDENCE.flags
+      ).exec(match)[1];
+      if (keywords === '') return null;
+      return keywords;
+    });
+    linkKeys = _.filter(linkKeys, key => {
+      return key !== null && key !== '';
+    });
+  }
+
+  let evidences = null;
+  let evidenceKeys = [];
+  // const evidenceKeys = [...fileKeys, ...linkKeys];
+  if (fileKeys) {
+    evidenceKeys.push(...fileKeys);
+  }
+
+  if (linkKeys) {
+    evidenceKeys.push(...linkKeys);
+  }
+  if (evidenceKeys.length) {
+    evidences = await AUN_EVIDENCE.findAll({
+      where: {
+        link: {
+          [Op.or]: evidenceKeys
+        }
+      }
+    });
+  }
+
+  return evidences;
+};
+
 module.exports = {
   isSARBelongToUser,
   isCriterionBelongToUser,
@@ -150,5 +217,6 @@ module.exports = {
   isSuggestionBelongToUser,
   isCommentBelongToUser,
   isEvidenceBelongToUser,
-  cloneSAR
+  cloneSAR,
+  findEvidence
 };

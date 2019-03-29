@@ -20,5 +20,8 @@ module.exports = {
       LINK: 'LINK',
       FILE: 'FILE'
     }
+  },
+  PATTERN: {
+    EVIDENCE: /href=["']{1}((https?:\/\/)?(www\.)?[-a-zA-Z0-9@:%._\+~#=]{2,256}\.[a-z]{2,6}\b[//]*([-a-zA-Z0-9@:%_\+.~#?&=]*))["']{1}/g
   }
 };

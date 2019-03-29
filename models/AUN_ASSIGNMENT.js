@@ -19,6 +19,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'UserEmail',
         allowNull: false
       },
+      as: 'User',
       onDelete: 'CASCADE'
     });
     AUN_ASSIGNMENT.belongsTo(models.AUN_SAR, {
@@ -26,6 +27,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'SARId',
         allowNull: false
       },
+      as: 'SAR',
       onDelete: 'CASCADE'
     });
   };

@@ -2,17 +2,43 @@ const express = require('express');
 const path = require('path');
 const cookieParser = require('cookie-parser');
 const logger = require('morgan');
+const log4js = require('log4js');
 const bodyParser = require('body-parser');
 const cors = require('cors');
 const fileUpload = require('express-fileupload');
+const rfs = require('rotating-file-stream');
 
 const { sequelize } = require('./models');
 const config = require('./config/config');
 
+const logStream = rfs('access.log', {
+  interval: '30d', // rotate monthly
+  path: path.join(__dirname, 'logs')
+});
+
+log4js.configure({
+  appenders: {
+    error: {
+      type: 'file',
+      filename: 'logs/error.log',
+      maxLogSize: 10485760,
+      backups: 3
+    }
+  },
+  categories: { default: { appenders: ['error'], level: 'error' } }
+});
+
 require('./passport');
 const app = express();
 
-app.use(logger('dev'));
+app.use(
+  logger('dev', {
+    skip: function(req, res) {
+      return res.statusCode < 400;
+    }
+  })
+);
+app.use(logger('common', { stream: logStream }));
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());

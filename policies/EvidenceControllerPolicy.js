@@ -12,10 +12,12 @@ module.exports = {
 
       let SuggestionId = null;
       SuggestionId = _.get(req, 'query.SuggestionId') || null;
-      await isSuggestionBelongToUser(SuggestionId, user);
+      await isSuggestionBelongToUser(SuggestionId, user, req);
 
       SuggestionId = _.get(req, 'body.SuggestionId') || null;
-      await isSuggestionBelongToUser(SuggestionId, user);
+      await isSuggestionBelongToUser(SuggestionId, user, req);
+
+      // TOOD: check evidence id
 
       next();
     } catch (err) {
