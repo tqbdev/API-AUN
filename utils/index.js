@@ -1,4 +1,6 @@
 const _ = require('lodash');
+const Promise = require('bluebird');
+const fs = Promise.promisifyAll(require('fs'));
 const Op = require('sequelize').Op;
 
 const AppContanst = require('../app.constants');
@@ -22,6 +24,8 @@ const isSARBelongToUser = async (id, user, req) => {
       }
     });
 
+    req.SARId = id;
+
     if (!assignment) throw new Error();
   }
 };
@@ -31,7 +35,8 @@ const isCriterionBelongToUser = async (id, user, req) => {
     const criterion = await AUN_CRITERION.findByPk(id);
 
     if (criterion) {
-      await isSARBelongToUser(criterion.SARId, user);
+      req.CriterionId = criterion.id;
+      await isSARBelongToUser(criterion.SARId, user, req);
     }
   }
 };
@@ -41,7 +46,8 @@ const isSubCriterionBelongToUser = async (id, user, req) => {
     const subCriterion = await AUN_SUB_CRITERION.findByPk(id);
 
     if (subCriterion) {
-      await isCriterionBelongToUser(subCriterion.CriterionId, user);
+      req.SubCriterionId = subCriterion.id;
+      await isCriterionBelongToUser(subCriterion.CriterionId, user, req);
     }
   }
 };
@@ -51,7 +57,8 @@ const isSuggestionBelongToUser = async (id, user, req) => {
     const suggestion = await AUN_SUGGESTION.findByPk(id);
 
     if (suggestion) {
-      await isCriterionBelongToUser(suggestion.CriterionId, user);
+      req.SuggestionId = suggestion.id;
+      await isCriterionBelongToUser(suggestion.CriterionId, user, req);
     }
   }
 };
@@ -66,7 +73,8 @@ const isCommentBelongToUser = async (id, user, req) => {
     });
 
     if (comment) {
-      await isSubCriterionBelongToUser(comment.SubCriterionId, user);
+      req.CommentId = comment.id;
+      await isSubCriterionBelongToUser(comment.SubCriterionId, user, req);
     }
   }
 };
@@ -80,7 +88,8 @@ const isEvidenceBelongToUser = async (id, user, req) => {
     });
 
     if (evidence) {
-      await isSuggestionBelongToUser(evidence.SuggestionId, user);
+      req.EvidenceId = evidence.id;
+      await isSuggestionBelongToUser(evidence.SuggestionId, user, req);
     }
   }
 };
@@ -146,7 +155,7 @@ const cloneSAR = async oldSARId => {
   return newSAR.id;
 };
 
-const findEvidence = async content => {
+const findEvidence = async (content, findTotal) => {
   let fileKeys = content.match(
     new RegExp(
       AppContanst.PATTERN.EVIDENCE.source,
@@ -158,7 +167,7 @@ const findEvidence = async content => {
       const keywords = new RegExp(
         AppContanst.PATTERN.EVIDENCE.source,
         AppContanst.PATTERN.EVIDENCE.flags
-      ).exec(match)[4];
+      ).exec(match)[5];
       if (keywords === '') return null;
       return { [Op.like]: '%' + keywords };
     });
@@ -178,7 +187,7 @@ const findEvidence = async content => {
       const keywords = new RegExp(
         AppContanst.PATTERN.EVIDENCE.source,
         AppContanst.PATTERN.EVIDENCE.flags
-      ).exec(match)[1];
+      ).exec(match)[2];
       if (keywords === '') return null;
       return keywords;
     });
@@ -189,7 +198,6 @@ const findEvidence = async content => {
 
   let evidences = null;
   let evidenceKeys = [];
-  // const evidenceKeys = [...fileKeys, ...linkKeys];
   if (fileKeys) {
     evidenceKeys.push(...fileKeys);
   }
@@ -205,9 +213,34 @@ const findEvidence = async content => {
         }
       }
     });
+
+    evidences = evidences.map(evidence => evidence.toJSON());
   }
 
+  if (findTotal) {
+    _.forEach(evidences, evidence => {
+      const link = evidence.link;
+      const regexPattern = new RegExp(
+        `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(.*)(<\/a>)`,
+        'gu'
+      );
+      console.log(content);
+      const total = countRef(content, regexPattern);
+      evidence.total = total;
+    });
+  }
+
+  console.log(evidences);
+
   return evidences;
+};
+
+const countRef = (str, pattern) => {
+  return ((str || '').match(pattern) || []).length;
+};
+
+const deleteFile = async path => {
+  return await fs.unlinkSync(path);
 };
 
 module.exports = {
@@ -218,5 +251,6 @@ module.exports = {
   isCommentBelongToUser,
   isEvidenceBelongToUser,
   cloneSAR,
-  findEvidence
+  findEvidence,
+  deleteFile
 };
