@@ -164,6 +164,26 @@ module.exports = {
 
       if (name) {
         await evidence.update({ name });
+
+        const link = evidence.link;
+        const regexPattern = new RegExp(
+          `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(.*)(<\/a>)`,
+          'gu'
+        );
+
+        const subCriterions = await evidence.getSubCriterions();
+        await _.forEach(subCriterions, async subCriterion => {
+          let content = subCriterion.content;
+          content = content.replace(
+            regexPattern,
+            (match, p1, p2, p3, p4, p5, offset, string) => {
+              return [p1, `data-value="${name}"`, p3, `@${name}`, p5].join('');
+            }
+          );
+          await subCriterion.update({
+            content: content
+          });
+        });
       }
 
       res.send(evidence.toJSON());
