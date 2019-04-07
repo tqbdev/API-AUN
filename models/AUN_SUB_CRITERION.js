@@ -35,8 +35,17 @@ module.exports = (sequelize, DataTypes) => {
         name: 'SubCriterionId',
         allowNull: false
       },
-      as: 'User',
+      as: 'Users',
       through: models.AUN_COMMENT,
+      onDelete: 'CASCADE'
+    });
+    AUN_SUB_CRITERION.belongsToMany(models.AUN_EVIDENCE, {
+      foreignKey: {
+        name: 'SubCriterionId',
+        allowNull: false
+      },
+      as: 'Evidences',
+      through: models.AUN_EVIDENCE_REF,
       onDelete: 'CASCADE'
     });
   };

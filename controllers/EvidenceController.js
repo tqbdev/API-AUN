@@ -6,6 +6,8 @@ const logger = require('log4js').getLogger('error');
 const { AUN_EVIDENCE, sequelize } = require('../models');
 const AppConstant = require('../app.constants');
 
+const { deleteFile } = require('../utils');
+
 module.exports = {
   async readAll(req, res) {
     try {
@@ -72,47 +74,52 @@ module.exports = {
     try {
       const { type, SuggestionId, link, name } = req.body;
 
+      let evidence = null;
       switch (type) {
-        case AppConstant.ENUM.EVIDENCE_TYPE.LINK: {
-          const evidence = await AUN_EVIDENCE.create({
-            name,
-            type,
-            link,
-            SuggestionId,
-            code: 'TESTING'
-          });
-
-          return res.send(evidence.toJSON());
-        }
-        case AppConstant.ENUM.EVIDENCE_TYPE.FILE: {
-          const file = _.get(req, 'files.file');
-
-          if (!file) {
-            return res.status(400).send({
-              error: 'No files were uploaded.'
+        case AppConstant.ENUM.EVIDENCE_TYPE.LINK:
+          {
+            evidence = await AUN_EVIDENCE.create({
+              name,
+              type,
+              link,
+              SuggestionId,
+              code: 'NOTHING'
             });
           }
+          break;
+        case AppConstant.ENUM.EVIDENCE_TYPE.FILE:
+          {
+            const file = _.get(req, 'files.file');
 
-          const originName = _.get(file, 'name');
-          const hashName =
-            md5(originName + new Date().toDateString()) +
-            path.extname(originName);
-          const appPath = path.normalize(__dirname + '/..');
-          const uploadPath = appPath + '/storage/' + hashName;
-          const linkFile = '/storage/' + hashName;
+            if (!file) {
+              return res.status(400).send({
+                error: 'No files were uploaded.'
+              });
+            }
 
-          await file.mv(uploadPath);
-          const evidence = await AUN_EVIDENCE.create({
-            name,
-            type,
-            link: linkFile,
-            SuggestionId,
-            code: 'TESTING'
-          });
+            const originName = _.get(file, 'name');
+            const hashName =
+              md5(originName + new Date().toDateString()) +
+              path.extname(originName);
+            const appPath = path.normalize(__dirname + '/..');
+            const uploadPath = appPath + '/storage/' + hashName;
+            const linkFile = '/storage/' + hashName;
 
-          return res.send(evidence.toJSON());
-        }
+            await file.mv(uploadPath);
+            evidence = await AUN_EVIDENCE.create({
+              name,
+              type,
+              link: linkFile,
+              SuggestionId,
+              code: 'NOTHING'
+            });
+          }
+          break;
       }
+      await evidence.update({
+        code: `${req.SARId}.${req.CriterionId}.${evidence.id}`
+      });
+      return res.send(evidence.toJSON());
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
@@ -186,6 +193,34 @@ module.exports = {
           error: 'Not found the evidence has id ' + id
         });
       }
+
+      const link = evidence.link;
+      const type = evidence.type;
+      const regexPattern = new RegExp(
+        `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(.*)(<\/a>)`,
+        'gu'
+      );
+
+      const subCriterions = await evidence.getSubCriterions();
+      await _.forEach(subCriterions, async subCriterion => {
+        let content = subCriterion.content;
+        content = content.replace(
+          regexPattern,
+          (match, p1, p2, p3, p4, p5, offset, string) => {
+            return [p1, `data-value="Unknown"`, p3, `Unknown`, p5].join('');
+          }
+        );
+        await subCriterion.update({
+          content: content
+        });
+      });
+
+      if (type === AppConstant.ENUM.EVIDENCE_TYPE.FILE) {
+        const appPath = path.normalize(__dirname + '/..');
+        const uploadedPath = appPath + link;
+        await deleteFile(uploadedPath);
+      }
+
       await evidence.destroy();
 
       res.send({});

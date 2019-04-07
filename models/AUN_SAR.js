@@ -53,7 +53,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'SARId',
         allowNull: false
       },
-      as: 'User',
+      as: 'Users',
       through: models.AUN_ASSIGNMENT,
       onDelete: 'CASCADE'
     });

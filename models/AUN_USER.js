@@ -71,7 +71,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'UserEmail',
         allowNull: false
       },
-      as: 'SAR',
+      as: 'SARs',
       through: models.AUN_ASSIGNMENT,
       onDelete: 'CASCADE'
     });
@@ -80,7 +80,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'UserEmail',
         allowNull: false
       },
-      as: 'SubCriterion',
+      as: 'SubCriterions',
       through: models.AUN_COMMENT,
       onDelete: 'CASCADE'
     });
