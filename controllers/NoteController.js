@@ -6,6 +6,7 @@ const { AUN_COMMENT } = require('../models');
 module.exports = {
   async readAll(req, res) {
     try {
+      const user = req.user;
       const { SubCriterionId } = req.query;
       if (!SubCriterionId) {
         return res.status(404).send({
@@ -13,18 +14,19 @@ module.exports = {
         });
       }
 
-      const comments = await AUN_COMMENT.findAll({
+      const notes = await AUN_COMMENT.findAll({
         where: {
           SubCriterionId: SubCriterionId,
-          isNote: false
+          UserEmail: user.email,
+          isNote: true
         }
       });
 
-      res.send(comments);
+      res.send(notes);
     } catch (err) {
       logger.error(err);
       res.status(500).send({
-        error: 'Error in get comments'
+        error: 'Error in get notes'
       });
     }
   },
@@ -33,19 +35,19 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const comment = await AUN_COMMENT.findByPk(id);
+      const note = await AUN_COMMENT.findByPk(id);
 
-      if (!comment) {
+      if (!note) {
         return res.status(404).send({
-          error: 'Not found the comment has id ' + id
+          error: 'Not found the note has id ' + id
         });
       }
 
-      res.send(comment.toJSON());
+      res.send(note.toJSON());
     } catch (err) {
       logger.error(err);
       res.status(500).send({
-        error: 'Error in get a comment'
+        error: 'Error in get a note'
       });
     }
   },
@@ -55,18 +57,19 @@ module.exports = {
       const user = req.user;
       const { title, SubCriterionId, content } = req.body;
 
-      const comment = await AUN_COMMENT.create({
+      const note = await AUN_COMMENT.create({
         title,
         content,
         SubCriterionId,
-        UserEmail: user.email
+        UserEmail: user.email,
+        isNote: true
       });
 
-      res.send(comment.toJSON());
+      res.send(note.toJSON());
     } catch (err) {
       logger.error(err);
       res.status(500).send({
-        error: 'Error in create a comment'
+        error: 'Error in create a note'
       });
     }
   },
@@ -76,11 +79,11 @@ module.exports = {
       const { id } = req.params;
       const { attributes } = req.body;
 
-      const comment = await AUN_COMMENT.findByPk(id);
+      const note = await AUN_COMMENT.findByPk(id);
 
-      if (!comment) {
+      if (!note) {
         return res.status(404).send({
-          error: 'Not found the comment has id ' + id
+          error: 'Not found the note has id ' + id
         });
       }
 
@@ -101,18 +104,18 @@ module.exports = {
       }
 
       if (title) {
-        await comment.update({ title });
+        await note.update({ title });
       }
 
       if (content) {
-        await comment.update({ content });
+        await note.update({ content });
       }
 
-      res.send(comment.toJSON());
+      res.send(note.toJSON());
     } catch (err) {
       logger.error(err);
       res.status(500).send({
-        error: 'Error in update a comment'
+        error: 'Error in update a note'
       });
     }
   },
@@ -121,20 +124,20 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const comment = await AUN_COMMENT.findByPk(id);
+      const note = await AUN_COMMENT.findByPk(id);
 
-      if (!comment) {
+      if (!note) {
         return res.status(404).send({
-          error: 'Not found the comment has id ' + id
+          error: 'Not found the note has id ' + id
         });
       }
-      await comment.destroy();
+      await note.destroy();
 
       res.send({});
     } catch (err) {
       logger.error(err);
       res.status(500).send({
-        error: 'Error in delete a comment'
+        error: 'Error in delete a note'
       });
     }
   }

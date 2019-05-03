@@ -1,7 +1,13 @@
 module.exports = (sequelize, DataTypes) => {
   const AUN_ASSIGNMENT = sequelize.define(
     'AUN_ASSIGNMENT',
-    {},
+    {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      }
+    },
     {
       indexes: [
         {

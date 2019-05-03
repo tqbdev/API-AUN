@@ -24,9 +24,11 @@ const isSARBelongToUser = async (id, user, req) => {
       }
     });
 
+    const SAR = await AUN_SAR.findByPk(id);
+
     req.SARId = id;
 
-    if (!assignment) throw new Error();
+    if (!assignment && !(SAR.isTemplate && req.isAdmin)) throw new Error();
   }
 };
 
@@ -75,6 +77,22 @@ const isCommentBelongToUser = async (id, user, req) => {
     if (comment) {
       req.CommentId = comment.id;
       await isSubCriterionBelongToUser(comment.SubCriterionId, user, req);
+    }
+  }
+};
+
+const isNoteBelongToUser = async (id, user, req) => {
+  if (id && user) {
+    const note = await AUN_COMMENT.findOne({
+      where: {
+        UserEmail: user.email,
+        id: id
+      }
+    });
+
+    if (note) {
+      req.NoteId = note.id;
+      await isSubCriterionBelongToUser(note.SubCriterionId, user, req);
     }
   }
 };
@@ -249,6 +267,7 @@ module.exports = {
   isSubCriterionBelongToUser,
   isSuggestionBelongToUser,
   isCommentBelongToUser,
+  isNoteBelongToUser,
   isEvidenceBelongToUser,
   cloneSAR,
   findEvidence,

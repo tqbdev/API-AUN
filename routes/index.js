@@ -6,6 +6,7 @@ const SubCriterionRouter = require('./SubCriterionRouter');
 const AssignmentRouter = require('./AssignmentRouter');
 const SuggestionRouter = require('./SuggestionRouter');
 const CommentRouter = require('./CommentRouter');
+const NoteRouter = require('./NoteRouter');
 const EvidenceRouter = require('./EvidenceRouter');
 const EvidenceRefRouter = require('./EvidenceRefRouter');
 const UserRouter = require('./UserRouter');
@@ -18,6 +19,7 @@ const SubCriterionControllerPolicy = require('../policies//SubCriterionControlle
 const AssignmentControllerPolicy = require('../policies//AssignmentControllerPolicy');
 const SuggestionControllerPolicy = require('../policies//SuggestionControllerPolicy');
 const CommentControllerPolicy = require('../policies//CommentControllerPolicy');
+const NoteControllerPolicy = require('../policies//NoteControllerPolicy');
 const UserControllerPolicy = require('../policies//UserControllerPolicy');
 const EvidenceControllerPolicy = require('../policies//EvidenceControllerPolicy');
 
@@ -53,6 +55,12 @@ module.exports = app => {
     isAuthenticated,
     CommentControllerPolicy.permission,
     CommentRouter
+  );
+  app.use(
+    '/notes',
+    isAuthenticated,
+    NoteControllerPolicy.permission,
+    NoteRouter
   );
   app.use(
     '/evidences',

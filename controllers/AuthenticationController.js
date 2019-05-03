@@ -1,9 +1,10 @@
 const jwt = require('jsonwebtoken');
 const randtoken = require('rand-token');
 const _ = require('lodash');
+const moment = require('moment');
 const logger = require('log4js').getLogger('error');
 
-const { AUN_USER } = require('../models');
+const { AUN_USER, AUN_REFRESH_TOKEN } = require('../models');
 const config = require('../config/config');
 
 function jwtSignUser(user) {
@@ -23,12 +24,15 @@ module.exports = {
     try {
       const refreshToken = randtoken.uid(256);
       const user = await AUN_USER.create(req.body);
-
-      await user.update({
-        refreshToken
+      const refresh = await AUN_REFRESH_TOKEN.create({
+        refreshToken: refreshToken,
+        expiredAt: moment()
+          .add(1, 'year')
+          .toDate(),
+        UserEmail: user.email
       });
+
       const userJson = user.toJSON();
-      delete userJson['refreshToken'];
 
       res.send({
         user: userJson,
@@ -62,14 +66,15 @@ module.exports = {
       }
 
       const refreshToken = randtoken.uid(256);
-      await user.update({
-        refreshToken,
-        coordinate: null,
-        ready: false
+      await AUN_REFRESH_TOKEN.create({
+        refreshToken: refreshToken,
+        expiredAt: moment()
+          .add(1, 'year')
+          .toDate(),
+        UserEmail: user.email
       });
 
       const userJson = user.toJSON();
-      delete userJson['refreshToken'];
 
       res.send({
         user: userJson,
@@ -87,21 +92,31 @@ module.exports = {
   async userToken(req, res) {
     try {
       const { email, refreshToken } = req.body;
-      const user = await AUN_USER.findOne({
+      const refresh = await AUN_REFRESH_TOKEN.findOne({
         where: {
-          email,
-          refreshToken
+          UserEmail: email,
+          refreshToken: refreshToken,
+          isRevoke: false
         }
       });
 
-      if (!user) {
+      if (!refresh) {
         return res.status(401).send({
           error: 'The information was incorrect'
         });
       }
 
+      const now = moment();
+      const expiredAt = moment(refresh.expiredAt);
+      if (expiredAt.diff(now) <= 0) {
+        return res.status(403).send({
+          error: 'Your refresh token is expired'
+        });
+      }
+
+      const user = await refresh.getUser();
+
       const userJson = user.toJSON();
-      delete userJson['refreshToken'];
 
       res.send({
         user: userJson,
@@ -118,21 +133,21 @@ module.exports = {
   async userRevokeToken(req, res) {
     try {
       const { email, refreshToken } = req.body;
-      const user = await AUN_USER.findOne({
+      const refresh = await AUN_REFRESH_TOKEN.findOne({
         where: {
-          email,
-          refreshToken
+          UserEmail: email,
+          refreshToken: refreshToken
         }
       });
 
-      if (!user) {
+      if (!refresh) {
         return res.status(401).send({
           error: 'The information was incorrect'
         });
       }
 
-      await user.update({
-        refreshToken: null
+      await refresh.update({
+        isRevoke: true
       });
 
       res.send({

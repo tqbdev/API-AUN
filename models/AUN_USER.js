@@ -48,9 +48,6 @@ module.exports = (sequelize, DataTypes) => {
         ],
         defaultValue: AppConstants.ENUM.ROLE.EDITOR,
         allowNull: false
-      },
-      refreshToken: {
-        type: DataTypes.TEXT
       }
     },
     {
@@ -82,6 +79,14 @@ module.exports = (sequelize, DataTypes) => {
       },
       as: 'SubCriterions',
       through: models.AUN_COMMENT,
+      onDelete: 'CASCADE'
+    });
+    AUN_USER.hasMany(models.AUN_REFRESH_TOKEN, {
+      foreignKey: {
+        name: 'UserEmail',
+        allowNull: false
+      },
+      as: 'RefreshTokens',
       onDelete: 'CASCADE'
     });
   };
