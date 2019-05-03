@@ -1,9 +1,6 @@
 const _ = require('lodash');
 
-const {
-  isCommentBelongToUser,
-  isSubCriterionBelongToUser
-} = require('../utils');
+const { isNoteBelongToUser, isSubCriterionBelongToUser } = require('../utils');
 
 module.exports = {
   async permission(req, res, next) {
@@ -20,8 +17,8 @@ module.exports = {
       SubCriterionId = _.get(req, 'body.SubCriterionId') || null;
       await isSubCriterionBelongToUser(SubCriterionId, user, req);
 
-      CommentId = _.get(req, 'params.id') || null;
-      await isCommentBelongToUser(CommentId, user, req);
+      NoteId = _.get(req, 'params.id') || null;
+      await isNoteBelongToUser(NoteId, user, req);
 
       next();
     } catch (err) {

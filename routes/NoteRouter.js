@@ -9,7 +9,7 @@ const {
   create,
   update,
   remove
-} = require('../controllers/CommentController');
+} = require('../controllers/NoteController');
 
 router.get('/', readAll);
 router.get('/:id', readOne);

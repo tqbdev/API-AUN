@@ -2,11 +2,21 @@ module.exports = (sequelize, DataTypes) => {
   const AUN_COMMENT = sequelize.define(
     'AUN_COMMENT',
     {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
       title: {
         type: DataTypes.TEXT
       },
       content: {
         type: DataTypes.TEXT
+      },
+      isNote: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       }
     },
     {

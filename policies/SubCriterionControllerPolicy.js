@@ -8,9 +8,9 @@ const {
 module.exports = {
   async permission(req, res, next) {
     try {
-      if (req.isAdmin) {
-        return next();
-      }
+      // if (req.isAdmin) {
+      //   return next();
+      // }
       const user = req.user;
 
       let CriterionId = null;
