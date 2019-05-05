@@ -165,15 +165,18 @@ const cloneSAR = async oldSARId => {
 
   const newSAR = await AUN_SAR.create(oldSAR);
 
-  await _.forEach(criterions, async criterionRaw => {
-    const criterion = criterionRaw.toJSON();
-    await cloneChildCriterion(criterion, newSAR.id);
-  });
+  await Promise.all(
+    _.forEach(criterions, async criterionRaw => {
+      const criterion = criterionRaw.toJSON();
+      await cloneChildCriterion(criterion, newSAR.id);
+    })
+  );
 
   return newSAR.id;
 };
 
-const findEvidence = async (content, findTotal) => {
+const findEvidence = async (subCriterion, findTotal) => {
+  const content = subCriterion.content;
   let fileKeys = content.match(
     new RegExp(
       AppContanst.PATTERN.EVIDENCE.source,
@@ -228,7 +231,8 @@ const findEvidence = async (content, findTotal) => {
       where: {
         link: {
           [Op.or]: evidenceKeys
-        }
+        },
+        CriterionId: subCriterion.CriterionId
       }
     });
 

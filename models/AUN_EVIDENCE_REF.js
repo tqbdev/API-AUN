@@ -2,6 +2,11 @@ module.exports = (sequelize, DataTypes) => {
   const AUN_EVIDENCE_REF = sequelize.define(
     'AUN_EVIDENCE_REF',
     {
+      id: {
+        type: DataTypes.INTEGER,
+        primaryKey: true,
+        autoIncrement: true
+      },
       total: DataTypes.INTEGER
     },
     {
