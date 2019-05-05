@@ -11,16 +11,16 @@ const { deleteFile } = require('../utils');
 module.exports = {
   async readAll(req, res) {
     try {
-      const { SuggestionId, CriterionId } = req.query;
+      const { SuggestionId, CriterionId, SARId } = req.query;
       if (!SuggestionId && !CriterionId) {
         return res.status(404).send({
           error: 'Require SuggestionId or CriterionId param'
         });
       }
 
-      if (SuggestionId && CriterionId) {
+      if (SuggestionId && CriterionId && SARId) {
         return res.status(406).send({
-          error: 'Only one param: SuggestionId or CriterionId'
+          error: 'Only one param: SuggestionId or CriterionId or SARId'
         });
       }
 
@@ -30,11 +30,21 @@ module.exports = {
         });
 
         res.send(evidences);
-      } else {
+      } else if (CriterionId) {
         const evidences = await sequelize.query(
           'SELECT * FROM AUN_EVIDENCEs WHERE SuggestionId IN (SELECT id FROM AUN_SUGGESTIONs WHERE CriterionId = :CriterionId)',
           {
             replacements: { CriterionId: CriterionId },
+            type: sequelize.QueryTypes.SELECT
+          }
+        );
+
+        res.send(evidences);
+      } else if (SARId) {
+        const evidences = await sequelize.query(
+          'SELECT * FROM AUN_EVIDENCEs WHERE SuggestionId IN (SELECT id FROM AUN_SUGGESTIONs WHERE CriterionId IN (SELECT id FROM AUN_CRITERIONs WHERE SARId = :SARId))',
+          {
+            replacements: { SARId: SARId },
             type: sequelize.QueryTypes.SELECT
           }
         );
@@ -172,18 +182,22 @@ module.exports = {
         );
 
         const subCriterions = await evidence.getSubCriterions();
-        await _.forEach(subCriterions, async subCriterion => {
-          let content = subCriterion.content;
-          content = content.replace(
-            regexPattern,
-            (match, p1, p2, p3, p4, p5, offset, string) => {
-              return [p1, `data-value="${name}"`, p3, `@${name}`, p5].join('');
-            }
-          );
-          await subCriterion.update({
-            content: content
-          });
-        });
+        await Promise.all(
+          _.forEach(subCriterions, async subCriterion => {
+            let content = subCriterion.content;
+            content = content.replace(
+              regexPattern,
+              (match, p1, p2, p3, p4, p5, offset, string) => {
+                return [p1, `data-value="${name}"`, p3, `@${name}`, p5].join(
+                  ''
+                );
+              }
+            );
+            await subCriterion.update({
+              content: content
+            });
+          })
+        );
       }
 
       res.send(evidence.toJSON());
@@ -214,34 +228,49 @@ module.exports = {
         });
       }
 
-      const link = evidence.link;
-      const type = evidence.type;
-      const regexPattern = new RegExp(
-        `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(.*)(<\/a>)`,
-        'gu'
-      );
-
-      const subCriterions = await evidence.getSubCriterions();
-      await _.forEach(subCriterions, async subCriterion => {
-        let content = subCriterion.content;
-        content = content.replace(
-          regexPattern,
-          (match, p1, p2, p3, p4, p5, offset, string) => {
-            return [p1, `data-value="Unknown"`, p3, `Unknown`, p5].join('');
-          }
-        );
-        await subCriterion.update({
-          content: content
-        });
+      const evidences = await AUN_EVIDENCE.findAll({
+        where: {
+          link: evidence.link
+        }
       });
 
-      if (type === AppConstant.ENUM.EVIDENCE_TYPE.FILE) {
-        const appPath = path.normalize(__dirname + '/..');
-        const uploadedPath = appPath + link;
-        await deleteFile(uploadedPath);
-      }
+      await Promise.all(
+        _.forEach(evidences, async evidence => {
+          const type = evidence.type;
+          const link = evidence.link;
 
-      await evidence.destroy();
+          const regexPattern = new RegExp(
+            `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(.*)(<\/a>)`,
+            'gu'
+          );
+
+          const subCriterions = await evidence.getSubCriterions();
+          await Promise.all(
+            _.forEach(subCriterions, async subCriterion => {
+              let content = subCriterion.content;
+              content = content.replace(
+                regexPattern,
+                (match, p1, p2, p3, p4, p5, offset, string) => {
+                  return [p1, `data-value="Unknown"`, p3, `Unknown`, p5].join(
+                    ''
+                  );
+                }
+              );
+              await subCriterion.update({
+                content: content
+              });
+            })
+          );
+
+          if (type === AppConstant.ENUM.EVIDENCE_TYPE.FILE) {
+            const appPath = path.normalize(__dirname + '/..');
+            const uploadedPath = appPath + link;
+            await deleteFile(uploadedPath);
+          }
+
+          await evidence.destroy();
+        })
+      );
 
       res.send({});
     } catch (err) {

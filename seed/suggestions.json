@@ -1,0 +1,164 @@
+[
+  {
+    "type": "IMPLICATION",
+    "content": "Kết quả học tập mong đợi phản ánh và được xây dựng dựa trên tầm nhìn và sứ mạng của nhà trường. Tầm nhìn và sứ mạng của nhà trường được tuyên bố công khai và được cán bộ, GV, SV biết đến.",
+    "CriterionId": 1
+  },
+  {
+    "type": "IMPLICATION",
+    "content": "CTĐT phản ánh kết quả học tập mong đợi mà SV tốt nghiệp cần đạt. Mỗi môn học và nội dung giảng dạy của từng buổi học cần được thiết kế tương thích với những kết quả học tập mong đợi của chương trình và góp phần đạt được những kết quả học tập mong đợi này.",
+    "CriterionId": 1
+  },
+  {
+    "type": "IMPLICATION",
+    "content": "CTĐT được thiết kế bao gồm đầu ra cho kiến thức, kỹ năng chuyên ngành và đầu ra tổng quát (kỹ năng mềm) như giao tiếp trực tiếp hay qua văn bản, giải quyết vấn đề, sử dụng công nghệ thông tin, làm việc nhóm…",
+    "CriterionId": 1
+  },
+  {
+    "type": "IMPLICATION",
+    "content": "Kết quả học tập mong đợi của chương trình được xây dựng rõ ràng, phản ánh nhu cầu và yêu cầu của các bên liên quan.",
+    "CriterionId": 1
+  },
+  {
+    "type": "QUESTION",
+    "content": "Mục tiêu đào tạo của chương trình là gì?",
+    "CriterionId": 1
+  },
+  {
+    "type": "QUESTION",
+    "content": "Các kết quả học tập mong đợi của chương trình là gì?",
+    "CriterionId": 1
+  },
+  {
+    "type": "QUESTION",
+    "content": "Quy trình xây dựng các kết quả học tập mong đợi như thế nào?",
+    "CriterionId": 1
+  },
+  {
+    "type": "QUESTION",
+    "content": "Thị trường lao động có đưa ra yêu cầu cụ thể nào đối với SV tốt nghiệp không?",
+    "CriterionId": 1
+  },
+  {
+    "type": "QUESTION",
+    "content": "Mức độ tương thích giữa nội dung CTĐT với yêu cầu của thị trường lao động?",
+    "CriterionId": 1
+  },
+  {
+    "type": "QUESTION",
+    "content": "Cách thức phổ biến kết quả học tập mong đợi đến cán bộ, GV và SV?",
+    "CriterionId": 1
+  },
+  {
+    "type": "QUESTION",
+    "content": "Kết quả học tập mong đợi có khả thi và đo lường được không? Bằng cách nào?",
+    "CriterionId": 1
+  },
+  {
+    "type": "QUESTION",
+    "content": "Mức độ đạt được kết quả học tập mong đợi?",
+    "CriterionId": 1
+  },
+  {
+    "type": "QUESTION",
+    "content": "Kết quả học tập mong đợi có được định kỳ rà soát không?",
+    "CriterionId": 1
+  },
+  {
+    "type": "QUESTION",
+    "content": "Kết quả học tập mong đợi được chuyển tải thành các yêu cầu cụ thể đối với SV tốt nghiệp như thế nào (kiến thức, kỹ năng và thái độ bao gồm cả kỹ năng tư duy)?",
+    "CriterionId": 1
+  },
+  {
+    "type": "EVIDENCE",
+    "content": "Bảng mô tả CTĐT và bảng mô tả môn học.",
+    "CriterionId": 1
+  },
+  {
+    "type": "EVIDENCE",
+    "content": "Đề cương môn học, tài liệu quảng bá, các bản tin.",
+    "CriterionId": 1
+  },
+  { "type": "EVIDENCE", "content": "Ma trận kỹ năng.", "CriterionId": 1 },
+  {
+    "type": "EVIDENCE",
+    "content": "Sự đóng góp của các bên liên quan.",
+    "CriterionId": 1
+  },
+  {
+    "type": "EVIDENCE",
+    "content": "Trang thông tin điện tử của trường và của khoa.",
+    "CriterionId": 1
+  },
+  {
+    "type": "EVIDENCE",
+    "content": "Các biên bản họp và tài liệu lưu trữ về hoạt động rà soát chương trình.",
+    "CriterionId": 1
+  },
+  {
+    "type": "EVIDENCE",
+    "content": "Các báo cáo về kiểm định và đối sánh.",
+    "CriterionId": 1
+  },
+  {
+    "type": "IMPLICATION",
+    "content": "Nhà trường nên công bố và phổ biến bảng mô tả CTĐT đào tạo và bảng mô tả môn học, trong đó trình bày thông tin chi tiết về chương trình nhằm giúp các bên liên quan có đủ thông tin để lựa chọn chương trình học phù hợp.",
+    "CriterionId": 3
+  },
+  {
+    "type": "IMPLICATION",
+    "content": "Bảng mô tả CTĐT đào tạo, bảng mô tả môn học trình bày các kết quả học tập mong đợi về kiến thức, kỹ năng và thái độ. Tài liệu này giúp SV biết được các phương pháp dạy và học giúp đạt được kết quả học tập mong đợi; các phương pháp đánh giá để đo mức độ đạt được kết quả học tập mong đợi và mối liên quan giữa CTĐT và các nội dung giảng dạy.",
+    "CriterionId": 3
+  },
+  {
+    "type": "QUESTION",
+    "content": "Kết quả học tập mong đợi được chuyển tải vào CTĐT cũng như vào các môn học như thế nào?",
+    "CriterionId": 3
+  },
+  {
+    "type": "QUESTION",
+    "content": "Bảng mô tả CTĐT và bảng mô tả môn học cung cấp những thông tin gì?",
+    "CriterionId": 3
+  },
+  {
+    "type": "QUESTION",
+    "content": "Bảng mô tả môn học có được chuẩn hóa trong toàn bộ chương trình không?",
+    "CriterionId": 3
+  },
+  {
+    "type": "QUESTION",
+    "content": "Bảng mô tả CTĐT có được công bố công khai, cung cấp và phổ biến đến các bên liên quan không?",
+    "CriterionId": 3
+  },
+  {
+    "type": "QUESTION",
+    "content": "Quy trình thẩm định/rà soát bảng mô tả CTĐT và bảng mô tả môn học được thực hiện như thế nào?",
+    "CriterionId": 3
+  },
+  {
+    "type": "EVIDENCE",
+    "content": "Bảng mô tả CTĐT và môn học.",
+    "CriterionId": 3
+  },
+  {
+    "type": "EVIDENCE",
+    "content": "Tờ rơi, tài liệu quảng bá môn học, bản tin.",
+    "CriterionId": 3
+  },
+  { "type": "EVIDENCE", "content": "Ma trận kỹ năng.", "CriterionId": 3 },
+  {
+    "type": "EVIDENCE",
+    "content": "Ý kiến của các bên liên quan.",
+    "CriterionId": 3
+  },
+  {
+    "type": "EVIDENCE",
+    "content": "Ý kiến của các bên liên quan.",
+    "CriterionId": 3
+  },
+  {
+    "type": "EVIDENCE",
+    "content": "Báo cáo về kiểm định và đối sánh.",
+    "CriterionId": 3
+  }
+]

@@ -1,6 +1,10 @@
 const _ = require('lodash');
 
-const { isSuggestionBelongToUser } = require('../utils');
+const {
+  isSuggestionBelongToUser,
+  isCriterionBelongToUser,
+  isEvidenceBelongToUser
+} = require('../utils');
 
 module.exports = {
   async permission(req, res, next) {
@@ -17,7 +21,15 @@ module.exports = {
       SuggestionId = _.get(req, 'body.SuggestionId') || null;
       await isSuggestionBelongToUser(SuggestionId, user, req);
 
-      // TOOD: check evidence id
+      let CriterionId = null;
+      CriterionId = _.get(req, 'query.CriterionId') || null;
+      await isCriterionBelongToUser(CriterionId, user, req);
+
+      CriterionId = _.get(req, 'body.CriterionId') || null;
+      await isCriterionBelongToUser(CriterionId, user, req);
+
+      EvidenceId = _.get(req, 'params.id') || null;
+      await isEvidenceBelongToUser(EvidenceId, user, req);
 
       next();
     } catch (err) {

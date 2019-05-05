@@ -59,15 +59,17 @@ module.exports = {
         CriterionId
       });
 
-      const evidences = await findEvidence(content, false);
-      await _.forEach(evidences, async evidence => {
-        // const evi = evidence.toJSON();
-        await AUN_EVIDENCE_REF.create({
-          SubCriterionId: subCriterion.id,
-          EvidenceId: evidence.id,
-          total: 1
-        });
-      });
+      const evidences = await findEvidence(subCriterion, false);
+      await Promise.all(
+        _.forEach(evidences, async evidence => {
+          // const evi = evidence.toJSON();
+          await AUN_EVIDENCE_REF.create({
+            SubCriterionId: subCriterion.id,
+            EvidenceId: evidence.id,
+            total: 1
+          });
+        })
+      );
 
       res.send(subCriterion.toJSON());
     } catch (err) {
@@ -127,15 +129,17 @@ module.exports = {
             type: sequelize.QueryTypes.DELETE
           }
         );
-        const evidences = await findEvidence(content, true);
-        await _.forEach(evidences, async evidence => {
-          // const evi = evidence.toJSON();
-          await AUN_EVIDENCE_REF.create({
-            SubCriterionId: subCriterion.id,
-            EvidenceId: evidence.id,
-            total: evidence.total
-          });
-        });
+        const evidences = await findEvidence(subCriterion, true);
+        await Promise.all(
+          _.forEach(evidences, async evidence => {
+            // const evi = evidence.toJSON();
+            await AUN_EVIDENCE_REF.create({
+              SubCriterionId: subCriterion.id,
+              EvidenceId: evidence.id,
+              total: evidence.total
+            });
+          })
+        );
       }
 
       res.send(subCriterion.toJSON());

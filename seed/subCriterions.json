@@ -1,0 +1,32 @@
+[
+  {
+    "name": "Kết quả học tập mong đợi được xây dựng rõ ràng, tương thích với tầm nhìn và sứ mạng của nhà trường",
+    "content": "<h1>Tiêu đề lớn</h1>\n<h3>Tiêu đề nhỏ</h3>\n<p><span style=\"color: rgb(209,72,65);\">Chữ màu</span></p>\n<p><span style=\"color: rgb(0,0,0);\">In <strong>đậm</strong>, <em>nghiêng</em>, <ins>gạch dưới</ins>, <del>ngang</del></span></p>\n<p><span style=\"color: rgb(0,0,0);\">danh sách</span></p>\n<ol>\n<li><span style=\"color: rgb(0,0,0);\">cẩm</span></li>\n<li><span style=\"color: rgb(0,0,0);\">bảo</span></li>\n<li><span style=\"color: rgb(0,0,0);\">an</span></li>\n</ol>\n<p><span style=\"color: rgb(0,0,0);background-color: rgb(250,197,28);\"><strong>Chưa support hình ảnh, emoji, font chữ (bổ sung sau)</strong></span></p>\n",
+    "CriterionId": 1
+  },
+  {
+    "name": "Kết quả học tập mong đợi bao gồm cả đầu ra chuyên ngành và đầu ra tổng quát (kỹ năng mềm)",
+    "content": "Kết quả học tập mong đợi bao gồm cả đầu ra chuyên ngành và đầu ra tổng quát (kỹ năng mềm)",
+    "CriterionId": 1
+  },
+  {
+    "name": "Kết quả học tập mong đợi phản ánh rõ ràng yêu cầu của các bên liên quan",
+    "content": "Kết quả học tập mong đợi phản ánh rõ ràng yêu cầu của các bên liên quan",
+    "CriterionId": 1
+  },
+  {
+    "name": "Thông tin cung cấp trong bảng mô tả CTĐT đầy đủ và cập nhật",
+    "content": "Thông tin cung cấp trong bảng mô tả CTĐT đầy đủ và cập nhật",
+    "CriterionId": 3
+  },
+  {
+    "name": "Thông tin cung cấp trong bảng mô tả môn học đầy đủ và cập nhật",
+    "content": "Thông tin cung cấp trong bảng mô tả môn học đầy đủ và cập nhật",
+    "CriterionId": 3
+  },
+  {
+    "name": "Bảng mô tả CTĐT và bảng mô tả môn học được công bố công khai và các bên liên quan dễ dàng tiếp cận",
+    "content": "Bảng mô tả CTĐT và bảng mô tả môn học được công bố công khai và các bên liên quan dễ dàng tiếp cận",
+    "CriterionId": 3
+  }
+]
