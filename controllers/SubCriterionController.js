@@ -60,16 +60,18 @@ module.exports = {
       });
 
       const evidences = await findEvidence(subCriterion, false);
-      await Promise.all(
-        _.forEach(evidences, async evidence => {
-          // const evi = evidence.toJSON();
-          await AUN_EVIDENCE_REF.create({
-            SubCriterionId: subCriterion.id,
-            EvidenceId: evidence.id,
-            total: 1
-          });
-        })
-      );
+      if (evidences) {
+        await Promise.all(
+          _.forEach(evidences, async evidence => {
+            // const evi = evidence.toJSON();
+            await AUN_EVIDENCE_REF.create({
+              SubCriterionId: subCriterion.id,
+              EvidenceId: evidence.id,
+              total: 1
+            });
+          })
+        );
+      }
 
       res.send(subCriterion.toJSON());
     } catch (err) {
@@ -130,16 +132,18 @@ module.exports = {
           }
         );
         const evidences = await findEvidence(subCriterion, true);
-        await Promise.all(
-          _.forEach(evidences, async evidence => {
-            // const evi = evidence.toJSON();
-            await AUN_EVIDENCE_REF.create({
-              SubCriterionId: subCriterion.id,
-              EvidenceId: evidence.id,
-              total: evidence.total
-            });
-          })
-        );
+        if (evidences) {
+          await Promise.all(
+            _.forEach(evidences, async evidence => {
+              // const evi = evidence.toJSON();
+              await AUN_EVIDENCE_REF.create({
+                SubCriterionId: subCriterion.id,
+                EvidenceId: evidence.id,
+                total: evidence.total
+              });
+            })
+          );
+        }
       }
 
       res.send(subCriterion.toJSON());

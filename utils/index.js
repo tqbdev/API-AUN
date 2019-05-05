@@ -3,6 +3,10 @@ const Promise = require('bluebird');
 const fs = Promise.promisifyAll(require('fs'));
 const Op = require('sequelize').Op;
 
+const xPathSelect = require('xpath.js');
+const DOMParser = require('xmldom').DOMParser;
+const XMLSerializer = require('xmldom').XMLSerializer;
+
 const AppContanst = require('../app.constants');
 
 const {
@@ -175,64 +179,50 @@ const cloneSAR = async oldSARId => {
   return newSAR.id;
 };
 
-const findEvidence = async (subCriterion, findTotal) => {
+const findEvidence = async (subCriterion, findTotal = false) => {
   const content = subCriterion.content;
-  let fileKeys = content.match(
-    new RegExp(
-      AppContanst.PATTERN.EVIDENCE.source,
-      AppContanst.PATTERN.EVIDENCE.flags
-    )
-  );
-  if (fileKeys) {
-    fileKeys = fileKeys.map(match => {
-      const keywords = new RegExp(
-        AppContanst.PATTERN.EVIDENCE.source,
-        AppContanst.PATTERN.EVIDENCE.flags
-      ).exec(match)[5];
-      if (keywords === '') return null;
-      return { [Op.like]: '%' + keywords };
-    });
-    fileKeys = _.filter(fileKeys, key => {
-      return key !== null && key !== '';
-    });
-  }
 
-  let linkKeys = content.match(
-    new RegExp(
-      AppContanst.PATTERN.EVIDENCE.source,
-      AppContanst.PATTERN.EVIDENCE.flags
-    )
-  );
-  if (linkKeys) {
-    linkKeys = linkKeys.map(match => {
-      const keywords = new RegExp(
-        AppContanst.PATTERN.EVIDENCE.source,
-        AppContanst.PATTERN.EVIDENCE.flags
-      ).exec(match)[2];
-      if (keywords === '') return null;
-      return keywords;
-    });
-    linkKeys = _.filter(linkKeys, key => {
-      return key !== null && key !== '';
-    });
-  }
+  let contentDoc = new DOMParser().parseFromString(content);
+  const aTags = xPathSelect(contentDoc, '//a[@data-value and @href]');
 
+  let keys = [];
+  _.forEach(aTags, aTag => {
+    const href = aTag.getAttribute('href');
+    if (href) keys.push(href);
+  });
+
+  let countKeys = [...keys];
+
+  let fileKeys = [];
+  _.forEach(keys, key => {
+    const file = new RegExp(
+      AppContanst.PATTERN.LINK.source,
+      AppContanst.PATTERN.LINK.flags
+    ).exec(key)[4];
+    if (file) {
+      countKeys.push(file);
+      fileKeys.push(file);
+      // fileKeys.push({ [Op.like]: '%' + file });
+    }
+  });
+
+  keys = _.uniq(keys);
+  fileKeys = _.uniq(fileKeys);
+
+  _.map(fileKeys, fileKey => {
+    return { [Op.like]: '%' + fileKey };
+  });
+
+  keys.push(...fileKeys);
   let evidences = null;
-  let evidenceKeys = [];
-  if (fileKeys) {
-    evidenceKeys.push(...fileKeys);
-  }
-
-  if (linkKeys) {
-    evidenceKeys.push(...linkKeys);
-  }
-  if (evidenceKeys.length) {
+  if (keys.length) {
     evidences = await AUN_EVIDENCE.findAll({
       where: {
         link: {
-          [Op.or]: evidenceKeys
-        },
-        CriterionId: subCriterion.CriterionId
+          [Op.or]: keys
+        }
+        // CriterionId: subCriterion.CriterionId
+        // TODO: Limit CriterionId
       }
     });
 
@@ -240,25 +230,46 @@ const findEvidence = async (subCriterion, findTotal) => {
   }
 
   if (findTotal) {
+    countKeys = _.countBy(countKeys);
     _.forEach(evidences, evidence => {
       const link = evidence.link;
-      const regexPattern = new RegExp(
-        `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(.*)(<\/a>)`,
-        'gu'
-      );
-      console.log(content);
-      const total = countRef(content, regexPattern);
+      const total = _.get(countKeys, link);
       evidence.total = total;
     });
   }
 
-  console.log(evidences);
-
   return evidences;
 };
 
-const countRef = (str, pattern) => {
-  return ((str || '').match(pattern) || []).length;
+const changeEvidence = async (subCriterion, evidence, isDelete = false) => {
+  const content = subCriterion.content;
+  console.log(content);
+
+  const newValue = isDelete ? 'Unknown' : evidence.name;
+
+  let contentDoc = new DOMParser().parseFromString(content);
+  const aTags = xPathSelect(contentDoc, '//a[@data-value and @href]');
+
+  _.forEach(aTags, aTag => {
+    const href = aTag.getAttribute('href');
+    console.log(href);
+    const file = new RegExp(
+      AppContanst.PATTERN.LINK.source,
+      AppContanst.PATTERN.LINK.flags
+    ).exec(href)[4];
+
+    if (href === evidence.link || file === evidence.link) {
+      if (isDelete) aTag.setAttribute('href', '');
+      aTag.setAttribute('data-value', newValue);
+      let last = aTag;
+      while (last.hasChildNodes()) {
+        last = last.firstChild;
+      }
+      last.data = '@' + newValue;
+    }
+  });
+
+  return new XMLSerializer().serializeToString(contentDoc);
 };
 
 const deleteFile = async path => {
@@ -275,5 +286,6 @@ module.exports = {
   isEvidenceBelongToUser,
   cloneSAR,
   findEvidence,
+  changeEvidence,
   deleteFile
 };

@@ -6,7 +6,7 @@ const logger = require('log4js').getLogger('error');
 const { AUN_EVIDENCE, sequelize } = require('../models');
 const AppConstant = require('../app.constants');
 
-const { deleteFile } = require('../utils');
+const { deleteFile, changeEvidence } = require('../utils');
 
 module.exports = {
   async readAll(req, res) {
@@ -175,29 +175,32 @@ module.exports = {
       if (name) {
         await evidence.update({ name });
 
-        const link = evidence.link;
-        const regexPattern = new RegExp(
-          `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(.*)(<\/a>)`,
-          'gu'
-        );
+        // const link = evidence.link;
+        // const regexPattern = new RegExp(
+        //   `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(.*)(<\/a>)`,
+        //   'gu'
+        // );
 
         const subCriterions = await evidence.getSubCriterions();
-        await Promise.all(
-          _.forEach(subCriterions, async subCriterion => {
-            let content = subCriterion.content;
-            content = content.replace(
-              regexPattern,
-              (match, p1, p2, p3, p4, p5, offset, string) => {
-                return [p1, `data-value="${name}"`, p3, `@${name}`, p5].join(
-                  ''
-                );
-              }
-            );
-            await subCriterion.update({
-              content: content
-            });
-          })
-        );
+        if (subCriterions) {
+          await Promise.all(
+            _.forEach(subCriterions, async subCriterion => {
+              // let content = subCriterion.content;
+              // content = content.replace(
+              //   regexPattern,
+              //   (match, p1, p2, p3, p4, p5, offset, string) => {
+              //     return [p1, `data-value="${name}"`, p3, `@${name}`, p5].join(
+              //       ''
+              //     );
+              //   }
+              // );
+              const content = await changeEvidence(subCriterion, evidence);
+              await subCriterion.update({
+                content: content
+              });
+            })
+          );
+        }
       }
 
       res.send(evidence.toJSON());
@@ -234,43 +237,53 @@ module.exports = {
         }
       });
 
-      await Promise.all(
-        _.forEach(evidences, async evidence => {
-          const type = evidence.type;
-          const link = evidence.link;
+      if (evidences) {
+        await Promise.all(
+          _.forEach(evidences, async evidence => {
+            const type = evidence.type;
+            const link = evidence.link;
 
-          const regexPattern = new RegExp(
-            `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(.*)(<\/a>)`,
-            'gu'
-          );
+            // const regexPattern = new RegExp(
+            //   `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(<span>.*</span>)(<\/a>)`,
+            //   'gu'
+            // );
 
-          const subCriterions = await evidence.getSubCriterions();
-          await Promise.all(
-            _.forEach(subCriterions, async subCriterion => {
-              let content = subCriterion.content;
-              content = content.replace(
-                regexPattern,
-                (match, p1, p2, p3, p4, p5, offset, string) => {
-                  return [p1, `data-value="Unknown"`, p3, `Unknown`, p5].join(
-                    ''
+            const subCriterions = await evidence.getSubCriterions();
+            if (subCriterions) {
+              await Promise.all(
+                _.forEach(subCriterions, async subCriterion => {
+                  // let content = subCriterion.content;
+                  // content = content.replace(
+                  //   regexPattern,
+                  //   (match, p1, p2, p3, p4, p5, offset, string) => {
+                  //     return [p1, `data-value="Unknown"`, p3, `Unknown`, p5].join(
+                  //       ''
+                  //     );
+                  //   }
+                  // );
+                  const content = await changeEvidence(
+                    subCriterion,
+                    evidence,
+                    true
                   );
-                }
+                  console.log(content);
+                  await subCriterion.update({
+                    content: content
+                  });
+                })
               );
-              await subCriterion.update({
-                content: content
-              });
-            })
-          );
+            }
 
-          if (type === AppConstant.ENUM.EVIDENCE_TYPE.FILE) {
-            const appPath = path.normalize(__dirname + '/..');
-            const uploadedPath = appPath + link;
-            await deleteFile(uploadedPath);
-          }
+            if (type === AppConstant.ENUM.EVIDENCE_TYPE.FILE) {
+              const appPath = path.normalize(__dirname + '/..');
+              const uploadedPath = appPath + link;
+              await deleteFile(uploadedPath);
+            }
 
-          await evidence.destroy();
-        })
-      );
+            await evidence.destroy();
+          })
+        );
+      }
 
       res.send({});
     } catch (err) {
