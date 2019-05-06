@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const logger = require('log4js').getLogger('error');
 
-const { AUN_COMMENT } = require('../models');
+const { AUN_COMMENT, AUN_SUB_CRITERION } = require('../models');
 
 module.exports = {
   async readAll(req, res) {
@@ -13,9 +13,23 @@ module.exports = {
         });
       }
 
-      const comments = await AUN_COMMENT.findAll({
+      // const comments = await AUN_COMMENT.findAll({
+      //   where: {
+      //     SubCriterionId: SubCriterionId,
+      //     isNote: false
+      //   }
+      // });
+
+      const subCriterion = await AUN_SUB_CRITERION.findByPk(SubCriterionId);
+
+      if (!subCriterion) {
+        return res.status(404).send({
+          error: 'Not found SubCriterion'
+        });
+      }
+
+      const comments = await subCriterion.getComments({
         where: {
-          SubCriterionId: SubCriterionId,
           isNote: false
         }
       });
@@ -33,7 +47,12 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const comment = await AUN_COMMENT.findByPk(id);
+      const comment = await AUN_COMMENT.findOne({
+        where: {
+          id: id,
+          isNote: false
+        }
+      });
 
       if (!comment) {
         return res.status(404).send({
@@ -58,9 +77,11 @@ module.exports = {
       const comment = await AUN_COMMENT.create({
         title,
         content,
-        SubCriterionId,
+        // SubCriterionId,
         UserEmail: user.email
       });
+
+      comment.addSubCriterions([SubCriterionId]);
 
       res.send(comment.toJSON());
     } catch (err) {
@@ -76,7 +97,12 @@ module.exports = {
       const { id } = req.params;
       const { attributes } = req.body;
 
-      const comment = await AUN_COMMENT.findByPk(id);
+      const comment = await AUN_COMMENT.findOne({
+        where: {
+          id: id,
+          isNote: false
+        }
+      });
 
       if (!comment) {
         return res.status(404).send({
@@ -121,7 +147,12 @@ module.exports = {
     try {
       const { id } = req.params;
 
-      const comment = await AUN_COMMENT.findByPk(id);
+      const comment = await AUN_COMMENT.findOne({
+        where: {
+          id: id,
+          isNote: false
+        }
+      });
 
       if (!comment) {
         return res.status(404).send({
