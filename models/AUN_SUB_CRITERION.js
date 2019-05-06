@@ -30,13 +30,13 @@ module.exports = (sequelize, DataTypes) => {
       as: 'Criterion',
       onDelete: 'CASCADE'
     });
-    AUN_SUB_CRITERION.belongsToMany(models.AUN_USER, {
+    AUN_SUB_CRITERION.belongsToMany(models.AUN_COMMENT, {
       foreignKey: {
         name: 'SubCriterionId',
         allowNull: false
       },
-      as: 'Users',
-      through: models.AUN_COMMENT,
+      as: 'Comments',
+      through: models.AUN_SUB_CRITERION_COMMENT,
       onDelete: 'CASCADE'
     });
     AUN_SUB_CRITERION.belongsToMany(models.AUN_EVIDENCE, {

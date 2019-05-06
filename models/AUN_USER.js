@@ -72,13 +72,21 @@ module.exports = (sequelize, DataTypes) => {
       through: models.AUN_ASSIGNMENT,
       onDelete: 'CASCADE'
     });
-    AUN_USER.belongsToMany(models.AUN_SUB_CRITERION, {
+    // AUN_USER.belongsToMany(models.AUN_SUB_CRITERION, {
+    //   foreignKey: {
+    //     name: 'UserEmail',
+    //     allowNull: false
+    //   },
+    //   as: 'SubCriterions',
+    //   through: models.AUN_COMMENT,
+    //   onDelete: 'CASCADE'
+    // });
+    AUN_USER.hasMany(models.AUN_COMMENT, {
       foreignKey: {
         name: 'UserEmail',
         allowNull: false
       },
-      as: 'SubCriterions',
-      through: models.AUN_COMMENT,
+      as: 'Comments',
       onDelete: 'CASCADE'
     });
     AUN_USER.hasMany(models.AUN_REFRESH_TOKEN, {
