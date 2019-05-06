@@ -59,7 +59,7 @@ module.exports = {
         CriterionId
       });
 
-      const evidences = await findEvidence(subCriterion, false);
+      const evidences = await findEvidence(subCriterion, true);
       if (evidences) {
         await Promise.all(
           _.forEach(evidences, async evidence => {
@@ -67,7 +67,7 @@ module.exports = {
             await AUN_EVIDENCE_REF.create({
               SubCriterionId: subCriterion.id,
               EvidenceId: evidence.id,
-              total: 1
+              total: evidence.total
             });
           })
         );

@@ -175,25 +175,10 @@ module.exports = {
       if (name) {
         await evidence.update({ name });
 
-        // const link = evidence.link;
-        // const regexPattern = new RegExp(
-        //   `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(.*)(<\/a>)`,
-        //   'gu'
-        // );
-
         const subCriterions = await evidence.getSubCriterions();
         if (subCriterions) {
           await Promise.all(
             _.forEach(subCriterions, async subCriterion => {
-              // let content = subCriterion.content;
-              // content = content.replace(
-              //   regexPattern,
-              //   (match, p1, p2, p3, p4, p5, offset, string) => {
-              //     return [p1, `data-value="${name}"`, p3, `@${name}`, p5].join(
-              //       ''
-              //     );
-              //   }
-              // );
               const content = await changeEvidence(subCriterion, evidence);
               await subCriterion.update({
                 content: content
@@ -243,30 +228,15 @@ module.exports = {
             const type = evidence.type;
             const link = evidence.link;
 
-            // const regexPattern = new RegExp(
-            //   `(<a[\\w\\d\\s]*href=["'].*${link}["']{1}.*)(data-value=["']{1}.*["']{1})(.*>)(<span>.*</span>)(<\/a>)`,
-            //   'gu'
-            // );
-
             const subCriterions = await evidence.getSubCriterions();
             if (subCriterions) {
               await Promise.all(
                 _.forEach(subCriterions, async subCriterion => {
-                  // let content = subCriterion.content;
-                  // content = content.replace(
-                  //   regexPattern,
-                  //   (match, p1, p2, p3, p4, p5, offset, string) => {
-                  //     return [p1, `data-value="Unknown"`, p3, `Unknown`, p5].join(
-                  //       ''
-                  //     );
-                  //   }
-                  // );
                   const content = await changeEvidence(
                     subCriterion,
                     evidence,
                     true
                   );
-                  console.log(content);
                   await subCriterion.update({
                     content: content
                   });
