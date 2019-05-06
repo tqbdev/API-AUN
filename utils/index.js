@@ -195,14 +195,16 @@ const findEvidence = async (subCriterion, findTotal = false) => {
 
   let fileKeys = [];
   _.forEach(keys, key => {
-    const file = new RegExp(
-      AppContanst.PATTERN.LINK.source,
-      AppContanst.PATTERN.LINK.flags
-    ).exec(key)[4];
+    const file = _.get(
+      new RegExp(
+        AppContanst.PATTERN.LINK.source,
+        AppContanst.PATTERN.LINK.flags
+      ).exec(key),
+      '[4]'
+    );
     if (file) {
       countKeys.push(file);
       fileKeys.push(file);
-      // fileKeys.push({ [Op.like]: '%' + file });
     }
   });
 
@@ -243,7 +245,6 @@ const findEvidence = async (subCriterion, findTotal = false) => {
 
 const changeEvidence = async (subCriterion, evidence, isDelete = false) => {
   const content = subCriterion.content;
-  console.log(content);
 
   const newValue = isDelete ? 'Unknown' : evidence.name;
 
@@ -252,11 +253,13 @@ const changeEvidence = async (subCriterion, evidence, isDelete = false) => {
 
   _.forEach(aTags, aTag => {
     const href = aTag.getAttribute('href');
-    console.log(href);
-    const file = new RegExp(
-      AppContanst.PATTERN.LINK.source,
-      AppContanst.PATTERN.LINK.flags
-    ).exec(href)[4];
+    const file = _.get(
+      new RegExp(
+        AppContanst.PATTERN.LINK.source,
+        AppContanst.PATTERN.LINK.flags
+      ).exec(href),
+      '[4]'
+    );
 
     if (href === evidence.link || file === evidence.link) {
       if (isDelete) aTag.setAttribute('href', '');
