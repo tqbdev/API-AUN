@@ -210,8 +210,9 @@ const findEvidence = async (subCriterion, findTotal = false) => {
 
   keys = _.uniq(keys);
   fileKeys = _.uniq(fileKeys);
+  console.log(fileKeys);
 
-  _.map(fileKeys, fileKey => {
+  fileKeys = _.map(fileKeys, fileKey => {
     return { [Op.like]: '%' + fileKey };
   });
 
