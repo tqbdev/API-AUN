@@ -96,11 +96,13 @@ module.exports = {
     try {
       const { id } = req.params;
       const { attributes } = req.body;
+      const user = req.user;
 
       const comment = await AUN_COMMENT.findOne({
         where: {
           id: id,
-          isNote: false
+          isNote: false,
+          UserEmail: user.email
         }
       });
 
@@ -146,11 +148,13 @@ module.exports = {
   async remove(req, res) {
     try {
       const { id } = req.params;
+      const user = req.user;
 
       const comment = await AUN_COMMENT.findOne({
         where: {
           id: id,
-          isNote: false
+          isNote: false,
+          UserEmail: user.email
         }
       });
 

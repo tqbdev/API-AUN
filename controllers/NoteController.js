@@ -32,7 +32,8 @@ module.exports = {
 
       const notes = await subCriterion.getComments({
         where: {
-          isNote: true
+          isNote: true,
+          UserEmail: user.email
         }
       });
 
@@ -48,11 +49,13 @@ module.exports = {
   async readOne(req, res) {
     try {
       const { id } = req.params;
+      const user = req.user;
 
       const note = await AUN_COMMENT.findOne({
         where: {
           id: id,
-          isNote: true
+          isNote: true,
+          UserEmail: user.email
         }
       });
 
@@ -107,12 +110,14 @@ module.exports = {
     try {
       const { id } = req.params;
       const { attributes } = req.body;
+      const user = req.user;
 
       // const note = await AUN_COMMENT.findByPk(id);
       const note = await AUN_COMMENT.findOne({
         where: {
           id: id,
-          isNote: true
+          isNote: true,
+          UserEmail: user.email
         }
       });
 
@@ -158,12 +163,14 @@ module.exports = {
   async remove(req, res) {
     try {
       const { id } = req.params;
+      const user = req.user;
 
       // const note = await AUN_COMMENT.findByPk(id);
       const note = await AUN_COMMENT.findOne({
         where: {
           id: id,
-          isNote: true
+          isNote: true,
+          UserEmail: user.email
         }
       });
 
