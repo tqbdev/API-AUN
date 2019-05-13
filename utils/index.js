@@ -171,7 +171,7 @@ const cloneSAR = async oldSARId => {
 
   const newSAR = await AUN_SAR.create(oldSAR);
 
-  for (let i = 0; i < criterions.length; i++) {
+  for (let i = 0, iMax = criterions.length; i < iMax; i++) {
     const criterion = criterions[i];
     await cloneChildCriterion(criterion, newSAR.id);
   }

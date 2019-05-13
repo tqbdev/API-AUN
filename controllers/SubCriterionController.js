@@ -61,7 +61,7 @@ module.exports = {
 
       const evidences = await findEvidence(subCriterion, true);
       if (evidences) {
-        for (let i = 0; i < evidences.length; i++) {
+        for (let i = 0, iMax = evidences.length; i < iMax; i++) {
           const evidence = evidences[i];
           await AUN_EVIDENCE_REF.create({
             SubCriterionId: subCriterion.id,
@@ -131,7 +131,7 @@ module.exports = {
         );
         const evidences = await findEvidence(subCriterion, true);
         if (evidences) {
-          for (let i = 0; i < evidences.length; i++) {
+          for (let i = 0, iMax = evidences.length; i < iMax; i++) {
             const evidence = evidences[i];
             await AUN_EVIDENCE_REF.create({
               SubCriterionId: subCriterion.id,

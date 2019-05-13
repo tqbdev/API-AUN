@@ -177,7 +177,7 @@ module.exports = {
 
         const subCriterions = await evidence.getSubCriterions();
         if (subCriterions) {
-          for (let i = 0; i < subCriterions.length; i++) {
+          for (let i = 0, iMax = subCriterions.length; i < iMax; i++) {
             const subCriterion = subCriterions[i];
             const content = await changeEvidence(subCriterion, evidence);
             await subCriterion.update({
@@ -222,14 +222,14 @@ module.exports = {
       });
 
       if (evidences) {
-        for (let i = 0; i < evidences.length; i++) {
+        for (let i = 0, iMax = evidences.length; i < iMax; i++) {
           const evidence = evidences[i];
           const type = evidence.type;
           const link = evidence.link;
 
           const subCriterions = await evidence.getSubCriterions();
           if (subCriterions) {
-            for (let i = 0; i < subCriterions.length; i++) {
+            for (let i = 0, iMax = subCriterions.length; i < iMax; i++) {
               const subCriterion = subCriterions[i];
               const content = await changeEvidence(
                 subCriterion,
