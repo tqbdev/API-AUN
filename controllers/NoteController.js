@@ -1,16 +1,22 @@
 const _ = require('lodash');
 const logger = require('log4js').getLogger('error');
 
-const { AUN_COMMENT, AUN_SUB_CRITERION } = require('../models');
+const { AUN_COMMENT, AUN_SUB_CRITERION, AUN_CRITERION } = require('../models');
 
 module.exports = {
   async readAll(req, res) {
     try {
       const user = req.user;
-      const { SubCriterionId } = req.query;
-      if (!SubCriterionId) {
-        return res.status(404).send({
-          error: 'Require SubCriterionId param'
+      const { SubCriterionId, SARId } = req.query;
+      if (!SubCriterionId && !SARId) {
+        return res.status(405).send({
+          error: 'Require SubCriterionId or SARId param'
+        });
+      }
+
+      if (SubCriterionId && SARId) {
+        return res.status(405).send({
+          error: 'Allow only one param'
         });
       }
 
@@ -22,22 +28,70 @@ module.exports = {
       //   }
       // });
 
-      const subCriterion = await AUN_SUB_CRITERION.findByPk(SubCriterionId);
+      if (SubCriterionId) {
+        const subCriterion = await AUN_SUB_CRITERION.findByPk(SubCriterionId);
 
-      if (!subCriterion) {
-        return res.status(404).send({
-          error: 'Not found SubCriterion'
+        if (!subCriterion) {
+          return res.status(404).send({
+            error: 'Not found SubCriterion'
+          });
+        }
+
+        const notes = await subCriterion.getComments({
+          where: {
+            isNote: true,
+            UserEmail: user.email
+          }
         });
+
+        return res.send(notes);
       }
 
-      const notes = await subCriterion.getComments({
-        where: {
-          isNote: true,
-          UserEmail: user.email
-        }
-      });
+      if (SARId) {
+        const noteTree = [];
 
-      res.send(notes);
+        const criterionIds = await AUN_CRITERION.findAll({
+          where: {
+            SARId: SARId
+          },
+          attributes: ['id']
+        }).map(criterionId => {
+          return _.get(criterionId.toJSON(), 'id');
+        });
+
+        for (const criterionId of criterionIds) {
+          const res = [];
+
+          const subCriterions = await AUN_SUB_CRITERION.findAll({
+            where: {
+              CriterionId: criterionId
+            }
+          });
+
+          for (const subCriterion of subCriterions) {
+            const notes = await subCriterion
+              .getComments({
+                where: {
+                  isNote: true,
+                  UserEmail: user.email
+                }
+              })
+              .map(note => {
+                return note.toJSON();
+              });
+
+            if (_.isEmpty(notes)) {
+              res.push([]);
+            } else {
+              res.push(notes);
+            }
+          }
+
+          noteTree.push(res);
+        }
+
+        return res.send(noteTree);
+      }
     } catch (err) {
       logger.error(err);
       res.status(500).send({
