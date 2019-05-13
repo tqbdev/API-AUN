@@ -177,14 +177,13 @@ module.exports = {
 
         const subCriterions = await evidence.getSubCriterions();
         if (subCriterions) {
-          await Promise.all(
-            _.forEach(subCriterions, async subCriterion => {
-              const content = await changeEvidence(subCriterion, evidence);
-              await subCriterion.update({
-                content: content
-              });
-            })
-          );
+          for (let i = 0; i < subCriterions.length; i++) {
+            const subCriterion = subCriterions[i];
+            const content = await changeEvidence(subCriterion, evidence);
+            await subCriterion.update({
+              content: content
+            });
+          }
         }
       }
 
@@ -223,36 +222,34 @@ module.exports = {
       });
 
       if (evidences) {
-        await Promise.all(
-          _.forEach(evidences, async evidence => {
-            const type = evidence.type;
-            const link = evidence.link;
+        for (let i = 0; i < evidences.length; i++) {
+          const evidence = evidences[i];
+          const type = evidence.type;
+          const link = evidence.link;
 
-            const subCriterions = await evidence.getSubCriterions();
-            if (subCriterions) {
-              await Promise.all(
-                _.forEach(subCriterions, async subCriterion => {
-                  const content = await changeEvidence(
-                    subCriterion,
-                    evidence,
-                    true
-                  );
-                  await subCriterion.update({
-                    content: content
-                  });
-                })
+          const subCriterions = await evidence.getSubCriterions();
+          if (subCriterions) {
+            for (let i = 0; i < subCriterions.length; i++) {
+              const subCriterion = subCriterions[i];
+              const content = await changeEvidence(
+                subCriterion,
+                evidence,
+                true
               );
+              await subCriterion.update({
+                content: content
+              });
             }
+          }
 
-            if (type === AppConstant.ENUM.EVIDENCE_TYPE.FILE) {
-              const appPath = path.normalize(__dirname + '/..');
-              const uploadedPath = appPath + link;
-              await deleteFile(uploadedPath);
-            }
+          if (type === AppConstant.ENUM.EVIDENCE_TYPE.FILE) {
+            const appPath = path.normalize(__dirname + '/..');
+            const uploadedPath = appPath + link;
+            await deleteFile(uploadedPath);
+          }
 
-            await evidence.destroy();
-          })
-        );
+          await evidence.destroy();
+        }
       }
 
       res.send({});

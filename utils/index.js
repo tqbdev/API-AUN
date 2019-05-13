@@ -158,10 +158,12 @@ const cloneSAR = async oldSARId => {
 
   oldSAR = oldSAR.toJSON();
 
-  let criterions = await AUN_CRITERION.findAll({
+  const criterions = await AUN_CRITERION.findAll({
     where: {
       SARId: oldSAR.id
     }
+  }).map(criterion => {
+    return criterion.toJSON();
   });
 
   delete oldSAR.id;
@@ -169,12 +171,10 @@ const cloneSAR = async oldSARId => {
 
   const newSAR = await AUN_SAR.create(oldSAR);
 
-  await Promise.all(
-    _.forEach(criterions, async criterionRaw => {
-      const criterion = criterionRaw.toJSON();
-      await cloneChildCriterion(criterion, newSAR.id);
-    })
-  );
+  for (let i = 0; i < criterions.length; i++) {
+    const criterion = criterions[i];
+    await cloneChildCriterion(criterion, newSAR.id);
+  }
 
   return newSAR.id;
 };
