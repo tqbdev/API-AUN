@@ -61,16 +61,14 @@ module.exports = {
 
       const evidences = await findEvidence(subCriterion, true);
       if (evidences) {
-        await Promise.all(
-          _.forEach(evidences, async evidence => {
-            // const evi = evidence.toJSON();
-            await AUN_EVIDENCE_REF.create({
-              SubCriterionId: subCriterion.id,
-              EvidenceId: evidence.id,
-              total: evidence.total
-            });
-          })
-        );
+        for (let i = 0; i < evidences.length; i++) {
+          const evidence = evidences[i];
+          await AUN_EVIDENCE_REF.create({
+            SubCriterionId: subCriterion.id,
+            EvidenceId: evidence.id,
+            total: evidence.total
+          });
+        }
       }
 
       res.send(subCriterion.toJSON());
@@ -133,16 +131,14 @@ module.exports = {
         );
         const evidences = await findEvidence(subCriterion, true);
         if (evidences) {
-          await Promise.all(
-            _.forEach(evidences, async evidence => {
-              // const evi = evidence.toJSON();
-              await AUN_EVIDENCE_REF.create({
-                SubCriterionId: subCriterion.id,
-                EvidenceId: evidence.id,
-                total: evidence.total
-              });
-            })
-          );
+          for (let i = 0; i < evidences.length; i++) {
+            const evidence = evidences[i];
+            await AUN_EVIDENCE_REF.create({
+              SubCriterionId: subCriterion.id,
+              EvidenceId: evidence.id,
+              total: evidence.total
+            });
+          }
         }
       }
 

@@ -59,7 +59,8 @@ module.exports = {
           return _.get(criterionId.toJSON(), 'id');
         });
 
-        for (const criterionId of criterionIds) {
+        for (let i = 0; i < criterionIds.length; i++) {
+          const criterionId = criterionIds[i];
           const res = [];
 
           const subCriterions = await AUN_SUB_CRITERION.findAll({
@@ -68,7 +69,8 @@ module.exports = {
             }
           });
 
-          for (const subCriterion of subCriterions) {
+          for (let j = 0; j < subCriterions.length; j++) {
+            const subCriterion = subCriterions[j];
             const notes = await subCriterion
               .getComments({
                 where: {
