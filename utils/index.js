@@ -181,6 +181,7 @@ const cloneSAR = async oldSARId => {
 
 const findEvidence = async (subCriterion, findTotal = false) => {
   const content = subCriterion.content;
+  const criterionId = subCriterion.CriterionId;
 
   let contentDoc = new DOMParser().parseFromString(content);
   const aTags = xPathSelect(contentDoc, '//a[@data-value and @href]');
@@ -210,7 +211,6 @@ const findEvidence = async (subCriterion, findTotal = false) => {
 
   keys = _.uniq(keys);
   fileKeys = _.uniq(fileKeys);
-  console.log(fileKeys);
 
   fileKeys = _.map(fileKeys, fileKey => {
     return { [Op.like]: '%' + fileKey };
@@ -224,9 +224,20 @@ const findEvidence = async (subCriterion, findTotal = false) => {
         link: {
           [Op.or]: keys
         }
-        // CriterionId: subCriterion.CriterionId
-        // TODO: Limit CriterionId
-      }
+        // 'Suggestion.CriterionId': criterionId
+        // TODO: Limit CriterionId - TESTING
+      },
+      include: [
+        {
+          model: AUN_SUGGESTION,
+          as: 'Suggestion',
+          where: {
+            CriterionId: criterionId
+          },
+          required: true,
+          attributes: []
+        }
+      ]
     });
 
     evidences = evidences.map(evidence => evidence.toJSON());
@@ -273,7 +284,8 @@ const changeEvidence = async (subCriterion, evidence, isDelete = false) => {
     }
   });
 
-  return new XMLSerializer().serializeToString(contentDoc);
+  const resContent = new XMLSerializer().serializeToString(contentDoc);
+  return _.replace(resContent, /&amp;nbsp;/g, '&nbsp;');
 };
 
 const deleteFile = async path => {
