@@ -229,8 +229,8 @@ module.exports = {
 
           const subCriterions = await evidence.getSubCriterions();
           if (subCriterions) {
-            for (let i = 0, iMax = subCriterions.length; i < iMax; i++) {
-              const subCriterion = subCriterions[i];
+            for (let j = 0, jMax = subCriterions.length; j < jMax; j++) {
+              const subCriterion = subCriterions[j];
               const content = await changeEvidence(
                 subCriterion,
                 evidence,
