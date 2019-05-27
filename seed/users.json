@@ -10,13 +10,12 @@
     "phone": "0934209124",
     "password": "124",
     "name": "Nguyen Van B",
-    "role": "ADMIN"
+    "isAdmin": true
   },
   {
     "email": "125@gmail.com",
     "phone": "0934209125",
     "password": "125",
-    "name": "Nguyen Van C",
-    "role": "REVIEWER"
+    "name": "Nguyen Van C"
   }
 ]

@@ -6,29 +6,48 @@ module.exports = {
   isAuthenticated(req, res, next) {
     passport.authenticate('jwt', function(err, user) {
       if (err || !user) {
-        res.status(403).send({
-          error: 'You do not have access to this resource'
-        });
+        try {
+          throw new Error('401');
+        } catch (err) {
+          next(err);
+        }
       } else {
         req.user = user.toJSON();
-        req.isAdmin = user.role === AppConstants.ENUM.ROLE.ADMIN;
         next();
       }
     })(req, res, next);
   },
-  // Create, Update and Delete
-  canCUD(req, res, next) {
-    const user = req.user;
+  adminRole(req, res, next) {
+    try {
+      const user = req.user;
+      const method = req.method;
 
-    switch (user.role) {
-      case AppConstants.ENUM.ROLE.ADMIN:
-      case AppConstants.ENUM.ROLE.EDITOR:
-        next();
-        break;
-      default:
-        res.status(403).send({
-          error: 'You do not have access to this resource'
-        });
+      switch (method) {
+        case 'POST':
+        case 'PATCH':
+        case 'DELETE':
+          if (!user.isAdmin) {
+            throw new Error('403');
+          }
+          break;
+      }
+
+      next();
+    } catch (err) {
+      next(err);
     }
+  },
+  editorRole(req, res, next) {
+    const method = req.method;
+
+    switch (method) {
+      case 'POST':
+      case 'PATCH':
+      case 'DELETE':
+        req.isRequiredEditor = true;
+        break;
+    }
+
+    next();
   }
 };

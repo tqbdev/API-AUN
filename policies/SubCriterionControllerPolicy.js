@@ -1,4 +1,5 @@
 const _ = require('lodash');
+const AppConstants = require('../app.constants');
 
 const {
   isCriterionBelongToUser,
@@ -8,26 +9,29 @@ const {
 module.exports = {
   async permission(req, res, next) {
     try {
-      // if (req.isAdmin) {
-      //   return next();
-      // }
-      const user = req.user;
+      req.isRequiredEditor = false;
+
+      switch (req.method) {
+        case 'POST':
+        case 'PATCH':
+        case 'DELETE':
+          req.role = AppConstants.ENUM.ROLE.EDITOR;
+          break;
+      }
 
       let CriterionId = null;
       CriterionId = _.get(req, 'query.CriterionId') || null;
-      await isCriterionBelongToUser(CriterionId, user, req);
+      await isCriterionBelongToUser(CriterionId, req);
 
       CriterionId = _.get(req, 'body.CriterionId') || null;
-      await isCriterionBelongToUser(CriterionId, user, req);
+      await isCriterionBelongToUser(CriterionId, req);
 
       SubCriterionId = _.get(req, 'params.id') || null;
-      await isSubCriterionBelongToUser(SubCriterionId, user, req);
+      await isSubCriterionBelongToUser(SubCriterionId, req);
 
       next();
     } catch (err) {
-      res.status(403).send({
-        error: 'You do not have access to this resource'
-      });
+      next(err);
     }
   }
 };

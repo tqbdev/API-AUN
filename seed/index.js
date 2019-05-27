@@ -51,9 +51,9 @@ sequelize
       })
     );
 
-    await Promise.all(
-      assignments.map(assignment => {
-        AUN_ASSIGNMENT.create(assignment);
-      })
-    );
+    // await Promise.all(
+    //   assignments.map(assignment => {
+    //     AUN_ASSIGNMENT.create(assignment);
+    //   })
+    // );
   });

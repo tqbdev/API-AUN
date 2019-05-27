@@ -74,7 +74,14 @@ module.exports = {
         UserEmail: user.email
       });
 
-      const userJson = user.toJSON();
+      const userJson = _.pick(user.toJSON(), [
+        'email',
+        'name',
+        'phone',
+        'isAdmin',
+        'createdAt',
+        'updatedAt'
+      ]);
 
       res.send({
         user: userJson,

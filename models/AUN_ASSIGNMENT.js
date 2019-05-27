@@ -1,23 +1,19 @@
+const AppConstants = require('../app.constants');
+
 module.exports = (sequelize, DataTypes) => {
-  const AUN_ASSIGNMENT = sequelize.define(
-    'AUN_ASSIGNMENT',
-    {
-      id: {
-        type: DataTypes.INTEGER,
-        primaryKey: true,
-        autoIncrement: true
-      }
+  const AUN_ASSIGNMENT = sequelize.define('AUN_ASSIGNMENT', {
+    id: {
+      type: DataTypes.INTEGER,
+      primaryKey: true,
+      autoIncrement: true
     },
-    {
-      indexes: [
-        {
-          unique: true,
-          name: 'Assignment - unique UserEmail and SARId',
-          fields: ['UserEmail', 'SARId']
-        }
-      ]
+    role: {
+      type: DataTypes.ENUM,
+      values: [AppConstants.ENUM.ROLE.EDITOR, AppConstants.ENUM.ROLE.REVIEWER],
+      defaultValue: AppConstants.ENUM.ROLE.EDITOR,
+      allowNull: false
     }
-  );
+  });
 
   AUN_ASSIGNMENT.associate = function(models) {
     AUN_ASSIGNMENT.belongsTo(models.AUN_USER, {
@@ -28,12 +24,13 @@ module.exports = (sequelize, DataTypes) => {
       as: 'User',
       onDelete: 'CASCADE'
     });
-    AUN_ASSIGNMENT.belongsTo(models.AUN_SAR, {
+    AUN_ASSIGNMENT.belongsToMany(models.AUN_SAR, {
       foreignKey: {
-        name: 'SARId',
+        name: 'AssignmentId',
         allowNull: false
       },
-      as: 'SAR',
+      as: 'SARs',
+      through: models.AUN_SAR_ASSIGNMENT,
       onDelete: 'CASCADE'
     });
   };

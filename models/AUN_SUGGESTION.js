@@ -35,12 +35,12 @@ module.exports = (sequelize, DataTypes) => {
       as: 'Criterion',
       onDelete: 'CASCADE'
     });
-    AUN_SUGGESTION.hasOne(models.AUN_EVIDENCE, {
+    AUN_SUGGESTION.hasMany(models.AUN_EVIDENCE, {
       foreignKey: {
         name: 'SuggestionId',
         allowNull: false
       },
-      as: 'Evidence',
+      as: 'Evidences',
       onDelete: 'CASCADE'
     });
   };

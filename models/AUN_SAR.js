@@ -48,13 +48,13 @@ module.exports = (sequelize, DataTypes) => {
       as: 'Criterion',
       onDelete: 'CASCADE'
     });
-    AUN_SAR.belongsToMany(models.AUN_USER, {
+    AUN_SAR.belongsToMany(models.AUN_ASSIGNMENT, {
       foreignKey: {
         name: 'SARId',
         allowNull: false
       },
-      as: 'Users',
-      through: models.AUN_ASSIGNMENT,
+      as: 'Assignments',
+      through: models.AUN_SAR_ASSIGNMENT,
       onDelete: 'CASCADE'
     });
   };

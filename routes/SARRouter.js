@@ -1,8 +1,6 @@
 const express = require('express');
 const router = express.Router();
 
-const { adminOnly } = require('../policies/Authenticated');
-
 const {
   readAll,
   readOne,

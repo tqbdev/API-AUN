@@ -3,7 +3,12 @@ const path = require('path');
 const md5 = require('md5');
 const logger = require('log4js').getLogger('error');
 
-const { AUN_EVIDENCE, sequelize } = require('../models');
+const {
+  AUN_EVIDENCE,
+  AUN_CRITERION,
+  AUN_SUGGESTION,
+  sequelize
+} = require('../models');
 const AppConstant = require('../app.constants');
 
 const { deleteFile, changeEvidence } = require('../utils');
@@ -12,9 +17,9 @@ module.exports = {
   async readAll(req, res) {
     try {
       const { SuggestionId, CriterionId, SARId } = req.query;
-      if (!SuggestionId && !CriterionId) {
+      if (!SuggestionId && !CriterionId && !SARId) {
         return res.status(404).send({
-          error: 'Require SuggestionId or CriterionId param'
+          error: 'Require SuggestionId or CriterionId param or SARId param'
         });
       }
 
@@ -41,15 +46,57 @@ module.exports = {
 
         res.send(evidences);
       } else if (SARId) {
-        const evidences = await sequelize.query(
-          'SELECT * FROM AUN_EVIDENCEs WHERE SuggestionId IN (SELECT id FROM AUN_SUGGESTIONs WHERE CriterionId IN (SELECT id FROM AUN_CRITERIONs WHERE SARId = :SARId))',
-          {
-            replacements: { SARId: SARId },
-            type: sequelize.QueryTypes.SELECT
-          }
-        );
+        // const evidences = await sequelize.query(
+        //   'SELECT * FROM AUN_EVIDENCEs WHERE SuggestionId IN (SELECT id FROM AUN_SUGGESTIONs WHERE CriterionId IN (SELECT id FROM AUN_CRITERIONs WHERE SARId = :SARId))',
+        //   {
+        //     replacements: { SARId: SARId },
+        //     type: sequelize.QueryTypes.SELECT
+        //   }
+        // );
 
-        res.send(evidences);
+        // res.send(evidences);
+        if (SARId) {
+          const evidenceTree = [];
+
+          const criterionIds = await AUN_CRITERION.findAll({
+            where: {
+              SARId: SARId
+            },
+            attributes: ['id']
+          }).map(criterionId => {
+            return _.get(criterionId.toJSON(), 'id');
+          });
+
+          for (let i = 0, iMax = criterionIds.length; i < iMax; i++) {
+            const criterionId = criterionIds[i];
+            const res = [];
+
+            const suggestions = await AUN_SUGGESTION.findAll({
+              where: {
+                CriterionId: criterionId
+              }
+            });
+
+            for (let j = 0, jMax = suggestions.length; j < jMax; j++) {
+              const suggestion = suggestions[j];
+              const evidences = await suggestion
+                .getEvidences()
+                .map(evidence => {
+                  return evidence.toJSON();
+                });
+
+              if (_.isEmpty(evidences)) {
+                res.push([]);
+              } else {
+                res.push(evidences);
+              }
+            }
+
+            evidenceTree.push(res);
+          }
+
+          return res.send(evidenceTree);
+        }
       }
     } catch (err) {
       logger.error(err);
@@ -72,6 +119,54 @@ module.exports = {
       }
 
       res.send(evidence.toJSON());
+    } catch (err) {
+      logger.error(err);
+      res.status(500).send({
+        error: 'Error in get a evidence'
+      });
+    }
+  },
+
+  async clone(req, res) {
+    try {
+      const { id } = req.params;
+      const { SuggestionId, name } = req.body;
+
+      const evidence = await AUN_EVIDENCE.findByPk(id);
+
+      const curSuggestion = await evidence.getSuggestion();
+      const newSuggestion = await AUN_SUGGESTION.findByPk(SuggestionId);
+
+      if (!newSuggestion) {
+        return res.status(404).send({
+          error: 'Not found the suggestion has id ' + SuggestionId
+        });
+      }
+
+      if (!evidence) {
+        return res.status(404).send({
+          error: 'Not found the evidence has id ' + id
+        });
+      }
+
+      if (curSuggestion.CriterionId === newSuggestion.CriterionId) {
+        return res.status(406).send({
+          error: 'Only allow to clone evidence to another criterion'
+        });
+      }
+
+      const evidenceCloned = await AUN_EVIDENCE.create({
+        name: name,
+        type: evidence.type,
+        link: evidence.link,
+        SuggestionId,
+        code: 'NOTHING'
+      });
+      await evidence.update({
+        code: `${req.SARId}.${req.CriterionId}.${evidenceCloned.id}`
+      });
+      const resData = await AUN_EVIDENCE.findByPk(evidenceCloned.id);
+      res.send(resData);
     } catch (err) {
       logger.error(err);
       res.status(500).send({
@@ -129,7 +224,8 @@ module.exports = {
       await evidence.update({
         code: `${req.SARId}.${req.CriterionId}.${evidence.id}`
       });
-      return res.send(evidence.toJSON());
+      const resData = await AUN_EVIDENCE.findByPk(evidence.id);
+      res.send(resData);
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
@@ -187,7 +283,8 @@ module.exports = {
         }
       }
 
-      res.send(evidence.toJSON());
+      const resData = await AUN_EVIDENCE.findByPk(evidence.id);
+      res.send(resData);
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
