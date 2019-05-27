@@ -13,6 +13,11 @@ module.exports = (sequelize, DataTypes) => {
         allowNull: false,
         defaultValue: true
       },
+      isAssigned: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
+      },
       reversion: {
         type: DataTypes.STRING
       },
@@ -40,12 +45,12 @@ module.exports = (sequelize, DataTypes) => {
   );
 
   AUN_SAR.associate = function(models) {
-    AUN_SAR.hasMany(models.AUN_CRITERION, {
+    AUN_SAR.hasMany(models.AUN_REVERSION, {
       foreignKey: {
         name: 'SARId',
         allowNull: false
       },
-      as: 'Criterion',
+      as: 'Reversions',
       onDelete: 'CASCADE'
     });
     AUN_SAR.belongsToMany(models.AUN_ASSIGNMENT, {

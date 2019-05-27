@@ -4,14 +4,13 @@ const AppConstants = require('../app.constants');
 const {
   isSuggestionBelongToUser,
   isCriterionBelongToUser,
-  isEvidenceBelongToUser
+  isEvidenceBelongToUser,
+  isSARBelongToUser
 } = require('../utils');
 
 module.exports = {
   async permission(req, res, next) {
     try {
-      req.isRequiredEditor = false;
-
       switch (req.method) {
         case 'POST':
         case 'PATCH':
@@ -19,6 +18,10 @@ module.exports = {
           req.role = AppConstants.ENUM.ROLE.EDITOR;
           break;
       }
+
+      let SARId = null;
+      SARId = _.get(req, 'query.SARId') || null;
+      await isSARBelongToUser(SARId, req);
 
       let SuggestionId = null;
       SuggestionId = _.get(req, 'query.SuggestionId') || null;
@@ -34,7 +37,7 @@ module.exports = {
       CriterionId = _.get(req, 'body.CriterionId') || null;
       await isCriterionBelongToUser(CriterionId, req);
 
-      EvidenceId = _.get(req, 'params.id') || null;
+      let EvidenceId = _.get(req, 'params.id') || null;
       await isEvidenceBelongToUser(EvidenceId, req);
 
       next();

@@ -14,17 +14,17 @@ module.exports = (sequelize, DataTypes) => {
       indexes: [
         {
           unique: true,
-          name: 'Criterion - unique name and SARId',
-          fields: ['name', 'SARId']
+          name: 'Criterion - unique name and ReversionId',
+          fields: ['name', 'ReversionId']
         }
       ]
     }
   );
 
   AUN_CRITERION.associate = function(models) {
-    AUN_CRITERION.belongsTo(models.AUN_SAR, {
+    AUN_CRITERION.belongsTo(models.AUN_REVERSION, {
       foreignKey: {
-        name: 'SARId',
+        name: 'ReversionId',
         allowNull: false
       },
       onDelete: 'CASCADE'
@@ -34,7 +34,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'CriterionId',
         allowNull: false
       },
-      as: 'SubCriterion',
+      as: 'SubCriterions',
       onDelete: 'CASCADE'
     });
     AUN_CRITERION.hasMany(models.AUN_SUGGESTION, {
@@ -42,7 +42,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'CriterionId',
         allowNull: false
       },
-      as: 'Suggestion',
+      as: 'Suggestions',
       onDelete: 'CASCADE'
     });
   };

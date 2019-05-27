@@ -16,7 +16,8 @@ const {
   AUN_ASSIGNMENT,
   AUN_SUGGESTION,
   AUN_COMMENT,
-  AUN_EVIDENCE
+  AUN_EVIDENCE,
+  AUN_REVERSION
 } = require('../models');
 
 const isSARBelongToUser = async (id, req) => {
@@ -46,6 +47,8 @@ const isSARBelongToUser = async (id, req) => {
     if (SAR.isTemplate) {
       if (!user.isAdmin) {
         throw new Error('403');
+      } else if (SAR.isAssigned && req.method !== 'GET') {
+        throw new Error('405');
       }
     } else {
       if (!assignment) {
@@ -57,10 +60,22 @@ const isSARBelongToUser = async (id, req) => {
         ) {
           throw new Error('403');
         }
+        req.role = assignment.role;
       }
     }
 
     req.SARId = id;
+  }
+};
+
+const isReversionBelongToUser = async (id, req) => {
+  if (id) {
+    const reversion = await AUN_REVERSION.findByPk(id);
+
+    if (reversion) {
+      req.ReversionId = reversion.id;
+      await isSARBelongToUser(reversion.SARId, req);
+    }
   }
 };
 
@@ -70,7 +85,7 @@ const isCriterionBelongToUser = async (id, req) => {
 
     if (criterion) {
       req.CriterionId = criterion.id;
-      await isSARBelongToUser(criterion.SARId, req);
+      await isReversionBelongToUser(criterion.ReversionId, req);
     }
   }
 };
@@ -142,10 +157,10 @@ const isEvidenceBelongToUser = async (id, req) => {
   }
 };
 
-const cloneChildCriterion = async (criterion, newSARId) => {
+const cloneChildCriterion = async (criterion, ReversionId) => {
   let oldCriterion = _.cloneDeep(criterion);
   delete oldCriterion.id;
-  oldCriterion.SARId = newSARId;
+  oldCriterion.ReversionId = ReversionId;
   const newCriterion = await AUN_CRITERION.create(oldCriterion);
 
   let subCriterions = await AUN_SUB_CRITERION.findAll({
@@ -167,16 +182,36 @@ const cloneChildCriterion = async (criterion, newSARId) => {
     where: {
       CriterionId: criterion.id
     }
+  }).map(item => {
+    return item.toJSON();
   });
 
-  suggestions = _.map(suggestions, suggestion => {
-    let value = suggestion.toJSON();
+  for (let i = 0, iMax = suggestions.length; i < iMax; i++) {
+    const suggestion = suggestions[i];
+    await cloneEvidence(suggestion, newCriterion.id);
+  }
+};
+
+const cloneEvidence = async (suggestion, CriterionId) => {
+  let oldSuggestion = _.cloneDeep(suggestion);
+  delete oldSuggestion.id;
+  oldSuggestion.CriterionId = CriterionId;
+  const newSuggestion = await AUN_SUGGESTION.create(oldSuggestion);
+
+  let evidences = await AUN_EVIDENCE.findAll({
+    where: {
+      SuggestionId: suggestion.id
+    }
+  });
+
+  evidences = _.map(evidences, evidence => {
+    let value = evidence.toJSON();
     delete value.id;
-    value.CriterionId = newCriterion.id;
+    value.SuggestionId = newSuggestion.id;
     return value;
   });
 
-  await AUN_SUGGESTION.bulkCreate(suggestions);
+  await AUN_EVIDENCE.bulkCreate(evidences);
 };
 
 const cloneSAR = async oldSARId => {
@@ -184,9 +219,16 @@ const cloneSAR = async oldSARId => {
 
   oldSAR = oldSAR.toJSON();
 
-  const criterions = await AUN_CRITERION.findAll({
+  const oldReversion = await AUN_REVERSION.findOne({
     where: {
       SARId: oldSAR.id
+    },
+    order: [['createdAt', 'DESC']]
+  });
+
+  const criterions = await AUN_CRITERION.findAll({
+    where: {
+      ReversionId: _.get(oldReversion, 'id')
     }
   }).map(criterion => {
     return criterion.toJSON();
@@ -197,12 +239,49 @@ const cloneSAR = async oldSARId => {
 
   const newSAR = await AUN_SAR.create(oldSAR);
 
+  const reversion = await AUN_REVERSION.create({
+    SARId: newSAR.id
+  });
+
   for (let i = 0, iMax = criterions.length; i < iMax; i++) {
     const criterion = criterions[i];
-    await cloneChildCriterion(criterion, newSAR.id);
+    await cloneChildCriterion(criterion, reversion.id);
   }
 
   return newSAR.id;
+};
+
+const cloneReversion = async (reversionId, isRelease = false) => {
+  let oldReversion = await AUN_REVERSION.findByPk(reversionId);
+  oldReversion = oldReversion.toJSON();
+
+  const total = await AUN_REVERSION.count({
+    where: {
+      SARId: oldReversion.SARId,
+      isRelease: isRelease
+    }
+  });
+
+  const criterions = await AUN_CRITERION.findAll({
+    where: {
+      ReversionId: oldReversion.id
+    }
+  }).map(criterion => {
+    return criterion.toJSON();
+  });
+
+  const newReversion = await AUN_REVERSION.create({
+    SARId: oldReversion.SARId,
+    version: +total + 1,
+    isRelease: isRelease
+  });
+
+  for (let i = 0, iMax = criterions.length; i < iMax; i++) {
+    const criterion = criterions[i];
+    await cloneChildCriterion(criterion, newReversion.id);
+  }
+
+  return newReversion;
 };
 
 const findEvidence = async (subCriterion, findTotal = false) => {
@@ -320,6 +399,7 @@ const deleteFile = async path => {
 
 module.exports = {
   isSARBelongToUser,
+  isReversionBelongToUser,
   isCriterionBelongToUser,
   isSubCriterionBelongToUser,
   isSuggestionBelongToUser,
@@ -327,6 +407,7 @@ module.exports = {
   isNoteBelongToUser,
   isEvidenceBelongToUser,
   cloneSAR,
+  cloneReversion,
   findEvidence,
   changeEvidence,
   deleteFile

@@ -6,15 +6,15 @@ const { AUN_CRITERION } = require('../models');
 module.exports = {
   async readAll(req, res) {
     try {
-      const { SARId } = req.query;
-      if (!SARId) {
+      const { ReversionId } = req.query;
+      if (!ReversionId) {
         return res.status(404).send({
-          error: 'Require SARId param'
+          error: 'Require ReversionId param'
         });
       }
 
       const criterions = await AUN_CRITERION.findAll({
-        where: { SARId: SARId }
+        where: { ReversionId: ReversionId }
       });
 
       res.send(criterions);
@@ -49,12 +49,12 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const { name, SARId, description } = req.body;
+      const { name, ReversionId, description } = req.body;
 
       const newCriterion = await AUN_CRITERION.create({
         name,
         description,
-        SARId: SARId
+        ReversionId: ReversionId
       });
 
       res.send(newCriterion.toJSON());

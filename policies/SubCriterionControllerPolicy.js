@@ -9,8 +9,6 @@ const {
 module.exports = {
   async permission(req, res, next) {
     try {
-      req.isRequiredEditor = false;
-
       switch (req.method) {
         case 'POST':
         case 'PATCH':
@@ -26,7 +24,7 @@ module.exports = {
       CriterionId = _.get(req, 'body.CriterionId') || null;
       await isCriterionBelongToUser(CriterionId, req);
 
-      SubCriterionId = _.get(req, 'params.id') || null;
+      let SubCriterionId = _.get(req, 'params.id') || null;
       await isSubCriterionBelongToUser(SubCriterionId, req);
 
       next();

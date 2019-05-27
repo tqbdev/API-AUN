@@ -18,7 +18,7 @@ module.exports = {
     try {
       const user = req.user;
 
-      if (req.isAdmin) {
+      if (user.isAdmin) {
         let sars = [];
 
         sars = await AUN_SAR.findAll({});

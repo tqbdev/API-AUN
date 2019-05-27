@@ -26,7 +26,7 @@ module.exports = {
       CriterionId = _.get(req, 'body.CriterionId') || null;
       await isCriterionBelongToUser(CriterionId, req);
 
-      SuggestionId = _.get(req, 'params.id') || null;
+      let SuggestionId = _.get(req, 'params.id') || null;
       await isSuggestionBelongToUser(SuggestionId, req);
 
       next();

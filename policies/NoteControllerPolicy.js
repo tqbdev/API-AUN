@@ -20,7 +20,7 @@ module.exports = {
       SubCriterionId = _.get(req, 'body.SubCriterionId') || null;
       await isSubCriterionBelongToUser(SubCriterionId, req);
 
-      NoteId = _.get(req, 'params.id') || null;
+      let NoteId = _.get(req, 'params.id') || null;
       await isNoteBelongToUser(NoteId, req);
 
       next();
