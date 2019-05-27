@@ -9,22 +9,18 @@ module.exports = {
       const method = req.method;
 
       switch (method) {
-        case 'GET':
-          break;
         case 'POST':
         case 'PATCH':
         case 'DELETE':
-          if (user.role != AppConstants.ENUM.ROLE.ADMIN) {
-            throw new Error();
+          if (!user.isAdmin) {
+            throw new Error('403');
           }
           break;
       }
 
       next();
     } catch (err) {
-      res.status(403).send({
-        error: 'You do not have access to this resource'
-      });
+      next(err);
     }
   }
 };

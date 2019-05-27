@@ -1,5 +1,3 @@
-const AppConstants = require('../app.constants');
-
 const Promise = require('bluebird');
 const bcrypt = Promise.promisifyAll(require('bcrypt-nodejs'));
 
@@ -39,15 +37,10 @@ module.exports = (sequelize, DataTypes) => {
       phone: {
         type: DataTypes.STRING
       },
-      role: {
-        type: DataTypes.ENUM,
-        values: [
-          AppConstants.ENUM.ROLE.ADMIN,
-          AppConstants.ENUM.ROLE.EDITOR,
-          AppConstants.ENUM.ROLE.REVIEWER
-        ],
-        defaultValue: AppConstants.ENUM.ROLE.EDITOR,
-        allowNull: false
+      isAdmin: {
+        type: DataTypes.BOOLEAN,
+        allowNull: false,
+        defaultValue: false
       }
     },
     {
@@ -63,13 +56,13 @@ module.exports = (sequelize, DataTypes) => {
   };
 
   AUN_USER.associate = function(models) {
-    AUN_USER.belongsToMany(models.AUN_SAR, {
+    AUN_USER.hasMany(models.AUN_ASSIGNMENT, {
       foreignKey: {
         name: 'UserEmail',
         allowNull: false
       },
-      as: 'SARs',
-      through: models.AUN_ASSIGNMENT,
+      as: 'Assignments',
+      // through: models.AUN_ASSIGNMENT,
       onDelete: 'CASCADE'
     });
     // AUN_USER.belongsToMany(models.AUN_SUB_CRITERION, {

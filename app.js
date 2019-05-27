@@ -48,6 +48,22 @@ app.use('/storage', express.static(path.join(__dirname, 'storage')));
 app.use(fileUpload());
 
 require('./routes')(app);
+app.use((err, req, res, next) => {
+  switch (err.message) {
+    case '404':
+      return res.status(404).send();
+    case '403':
+      return res.status(403).send({
+        error: 'You do not have access to this resource'
+      });
+    case '401':
+      return res.status(401).send({
+        error: 'Your authenticate information is incorrect.'
+      });
+    default:
+      next(err);
+  }
+});
 
 sequelize
   .sync({

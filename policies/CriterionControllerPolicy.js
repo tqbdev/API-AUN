@@ -5,26 +5,30 @@ const { isSARBelongToUser, isCriterionBelongToUser } = require('../utils');
 module.exports = {
   async permission(req, res, next) {
     try {
-      // if (req.isAdmin) {
-      //   return next();
-      // }
       const user = req.user;
+      switch (req.method) {
+        case 'POST':
+        case 'PATCH':
+        case 'DELETE':
+          if (!user.isAdmin) {
+            throw new Error('403');
+          }
+          break;
+      }
 
       let SARId = null;
       SARId = _.get(req, 'query.SARId') || null;
-      await isSARBelongToUser(SARId, user, req);
+      await isSARBelongToUser(SARId, req);
 
       SARId = _.get(req, 'body.SARId') || null;
-      await isSARBelongToUser(SARId, user, req);
+      await isSARBelongToUser(SARId, req);
 
       CriterionId = _.get(req, 'params.id') || null;
-      await isCriterionBelongToUser(CriterionId, user, req);
+      await isCriterionBelongToUser(CriterionId, req);
 
       next();
     } catch (err) {
-      res.status(403).send({
-        error: 'You do not have access to this resource'
-      });
+      next(err);
     }
   }
 };

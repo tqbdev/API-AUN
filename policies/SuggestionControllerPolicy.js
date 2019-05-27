@@ -8,26 +8,30 @@ const {
 module.exports = {
   async permission(req, res, next) {
     try {
-      // if (req.isAdmin) {
-      //   return next();
-      // }
       const user = req.user;
+      switch (req.method) {
+        case 'POST':
+        case 'PATCH':
+        case 'DELETE':
+          if (!user.isAdmin) {
+            throw new Error('403');
+          }
+          break;
+      }
 
       let CriterionId = null;
       CriterionId = _.get(req, 'query.CriterionId') || null;
-      await isCriterionBelongToUser(CriterionId, user, req);
+      await isCriterionBelongToUser(CriterionId, req);
 
       CriterionId = _.get(req, 'body.CriterionId') || null;
-      await isCriterionBelongToUser(CriterionId, user, req);
+      await isCriterionBelongToUser(CriterionId, req);
 
       SuggestionId = _.get(req, 'params.id') || null;
-      await isSuggestionBelongToUser(SuggestionId, user, req);
+      await isSuggestionBelongToUser(SuggestionId, req);
 
       next();
     } catch (err) {
-      res.status(403).send({
-        error: 'You do not have access to this resource'
-      });
+      next(err);
     }
   }
 };

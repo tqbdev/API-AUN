@@ -17,41 +17,34 @@ module.exports = {
   async readAll(req, res) {
     try {
       const user = req.user;
-      let sars = [];
 
       if (req.isAdmin) {
+        let sars = [];
+
         sars = await AUN_SAR.findAll({});
+
         sars = _.chain(sars)
           .groupBy('isTemplate')
           .toJSON();
 
         sars = renameKey(sars, 'true', 'templates');
         sars = renameKey(sars, 'false', 'projects');
+
+        res.send(sars);
       } else {
-        const sarIds = await AUN_ASSIGNMENT.findAll({
+        const sars = await AUN_ASSIGNMENT.findAll({
           where: {
             UserEmail: user.email
           },
-          attributes: ['SARId'],
-          raw: true
-        }).then(function(assignments) {
-          return _.map(assignments, function(assignment) {
-            return assignment.SARId;
-          });
-        });
-
-        if (_.get(sarIds, 'length')) {
-          sars = await AUN_SAR.findAll({
-            where: {
-              id: {
-                [Op.or]: sarIds
-              }
+          include: [
+            {
+              model: AUN_SAR,
+              as: 'SARs'
             }
-          });
-        }
+          ]
+        });
+        res.send(sars);
       }
-
-      res.send(sars);
     } catch (err) {
       logger.error(err);
       res.status(500).send({

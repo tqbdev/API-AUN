@@ -19,58 +19,87 @@ const {
   AUN_EVIDENCE
 } = require('../models');
 
-const isSARBelongToUser = async (id, user, req) => {
+const isSARBelongToUser = async (id, req) => {
   if (id) {
+    const user = req.user;
     const assignment = await AUN_ASSIGNMENT.findOne({
       where: {
-        UserEmail: user.email,
-        SARId: id
-      }
+        UserEmail: user.email
+      },
+      include: [
+        {
+          model: AUN_SAR,
+          as: 'SARs',
+          where: {
+            id: id
+          }
+        }
+      ]
     });
 
     const SAR = await AUN_SAR.findByPk(id);
 
-    req.SARId = id;
+    if (!SAR) {
+      throw new Error('404');
+    }
 
-    if (!assignment && !(SAR.isTemplate && req.isAdmin)) throw new Error();
+    if (SAR.isTemplate) {
+      if (!user.isAdmin) {
+        throw new Error('403');
+      }
+    } else {
+      if (!assignment) {
+        throw new Error('403');
+      } else {
+        if (
+          req.role === AppContanst.ENUM.ROLE.EDITOR &&
+          assignment.role !== req.role
+        ) {
+          throw new Error('403');
+        }
+      }
+    }
+
+    req.SARId = id;
   }
 };
 
-const isCriterionBelongToUser = async (id, user, req) => {
+const isCriterionBelongToUser = async (id, req) => {
   if (id) {
     const criterion = await AUN_CRITERION.findByPk(id);
 
     if (criterion) {
       req.CriterionId = criterion.id;
-      await isSARBelongToUser(criterion.SARId, user, req);
+      await isSARBelongToUser(criterion.SARId, req);
     }
   }
 };
 
-const isSubCriterionBelongToUser = async (id, user, req) => {
+const isSubCriterionBelongToUser = async (id, req) => {
   if (id) {
     const subCriterion = await AUN_SUB_CRITERION.findByPk(id);
 
     if (subCriterion) {
       req.SubCriterionId = subCriterion.id;
-      await isCriterionBelongToUser(subCriterion.CriterionId, user, req);
+      await isCriterionBelongToUser(subCriterion.CriterionId, req);
     }
   }
 };
 
-const isSuggestionBelongToUser = async (id, user, req) => {
+const isSuggestionBelongToUser = async (id, req) => {
   if (id) {
     const suggestion = await AUN_SUGGESTION.findByPk(id);
 
     if (suggestion) {
       req.SuggestionId = suggestion.id;
-      await isCriterionBelongToUser(suggestion.CriterionId, user, req);
+      await isCriterionBelongToUser(suggestion.CriterionId, req);
     }
   }
 };
 
-const isCommentBelongToUser = async (id, user, req) => {
-  if (id && user) {
+const isCommentBelongToUser = async (id, req) => {
+  const user = req.user;
+  if (id) {
     const comment = await AUN_COMMENT.findOne({
       where: {
         UserEmail: user.email,
@@ -80,13 +109,14 @@ const isCommentBelongToUser = async (id, user, req) => {
 
     if (comment) {
       req.CommentId = comment.id;
-      await isSubCriterionBelongToUser(comment.SubCriterionId, user, req);
+      await isSubCriterionBelongToUser(comment.SubCriterionId, req);
     }
   }
 };
 
-const isNoteBelongToUser = async (id, user, req) => {
-  if (id && user) {
+const isNoteBelongToUser = async (id, req) => {
+  const user = req.user;
+  if (id) {
     const note = await AUN_COMMENT.findOne({
       where: {
         UserEmail: user.email,
@@ -96,22 +126,18 @@ const isNoteBelongToUser = async (id, user, req) => {
 
     if (note) {
       req.NoteId = note.id;
-      await isSubCriterionBelongToUser(note.SubCriterionId, user, req);
+      await isSubCriterionBelongToUser(note.SubCriterionId, req);
     }
   }
 };
 
-const isEvidenceBelongToUser = async (id, user, req) => {
-  if (id && user) {
-    const evidence = await AUN_EVIDENCE.findOne({
-      where: {
-        id: id
-      }
-    });
+const isEvidenceBelongToUser = async (id, req) => {
+  if (id) {
+    const evidence = await AUN_EVIDENCE.findByPk(id);
 
     if (evidence) {
       req.EvidenceId = evidence.id;
-      await isSuggestionBelongToUser(evidence.SuggestionId, user, req);
+      await isSuggestionBelongToUser(evidence.SuggestionId, req);
     }
   }
 };
