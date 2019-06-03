@@ -17,7 +17,9 @@ const {
   AUN_SUGGESTION,
   AUN_COMMENT,
   AUN_EVIDENCE,
-  AUN_REVERSION
+  AUN_REVERSION,
+  AUN_EVIDENCE_REF,
+  sequelize
 } = require('../models');
 
 const isSARBelongToUser = async (id, req) => {
@@ -54,11 +56,12 @@ const isSARBelongToUser = async (id, req) => {
       if (!assignment) {
         throw new Error('403');
       } else {
-        if (
-          req.role === AppContanst.ENUM.ROLE.EDITOR &&
-          assignment.role !== req.role
-        ) {
-          throw new Error('403');
+        if (req.role === AppContanst.ENUM.ROLE.EDITOR) {
+          if (assignment.role !== req.role) {
+            throw new Error('403');
+          } else if (!req.isNewestReversion && req.point !== 'REVERSION') {
+            throw new Error('405');
+          }
         }
         req.role = assignment.role;
       }
@@ -74,6 +77,16 @@ const isReversionBelongToUser = async (id, req) => {
 
     if (reversion) {
       req.ReversionId = reversion.id;
+
+      const newestReversion = await AUN_REVERSION.findOne({
+        where: {
+          SARId: reversion.SARId
+        },
+        order: [['version', 'DESC']]
+      });
+
+      req.isNewestReversion = reversion.id === newestReversion.id;
+
       await isSARBelongToUser(reversion.SARId, req);
     }
   }
@@ -279,6 +292,30 @@ const cloneReversion = async (reversionId, isRelease = false) => {
   for (let i = 0, iMax = criterions.length; i < iMax; i++) {
     const criterion = criterions[i];
     await cloneChildCriterion(criterion, newReversion.id);
+  }
+
+  // Clone evidence ref
+  const subCriterions = await sequelize.query(
+    'SELECT * FROM AUN_SUB_CRITERIONs WHERE CriterionId IN (SELECT id FROM AUN_CRITERIONs WHERE ReversionId = :ReversionId)',
+    {
+      replacements: { ReversionId: newReversion.id },
+      type: sequelize.QueryTypes.SELECT
+    }
+  );
+
+  for (let i = 0, iMax = subCriterions.length; i < iMax; i++) {
+    const subCriterion = subCriterions[i];
+    const evidences = await findEvidence(subCriterion, true);
+    if (evidences) {
+      for (let j = 0, jMax = evidences.length; j < jMax; j++) {
+        const evidence = evidences[j];
+        await AUN_EVIDENCE_REF.create({
+          SubCriterionId: subCriterion.id,
+          EvidenceId: evidence.id,
+          total: evidence.total
+        });
+      }
+    }
   }
 
   return newReversion;

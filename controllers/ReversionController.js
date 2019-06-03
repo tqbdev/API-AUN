@@ -60,17 +60,17 @@ module.exports = {
 
       if (ReversionId) {
         const reversion = await cloneReversion(ReversionId);
-        res.send(reversion);
+        return res.send(reversion);
       }
 
       if (SARId) {
         const reversion = AUN_REVERSION.create({
           SARId: SARId
         });
-        res.send(reversion);
+        return res.send(reversion);
       }
 
-      res.status(400).send({});
+      return res.status(400).send({});
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
@@ -91,6 +91,7 @@ module.exports = {
       const { ReversionId } = req.body;
 
       const reversion = await cloneReversion(ReversionId, true);
+
       res.send(reversion);
     } catch (err) {
       switch (err.name) {

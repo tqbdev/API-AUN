@@ -12,6 +12,7 @@ module.exports = {
         case 'PATCH':
         case 'DELETE':
           req.role = AppConstants.ENUM.ROLE.EDITOR;
+          req.point = 'REVERSION';
           break;
       }
 
