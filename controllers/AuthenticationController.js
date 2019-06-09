@@ -166,5 +166,49 @@ module.exports = {
         error: 'An error has occured trying to revoke token'
       });
     }
+  },
+
+  async changePassword(req, res) {
+    try {
+      const { oldPassword, newPassword } = req.body;
+      const user = req.user;
+
+      let userDB = await AUN_USER.findByPk(user.email);
+
+      if (!userDB) {
+        return res.status(403).send({
+          error: 'The login information was incorrect'
+        });
+      }
+
+      const isPasswordValid = await userDB.comparePassword(oldPassword);
+      if (!isPasswordValid) {
+        return res.status(403).send({
+          error: 'The login information was incorrect'
+        });
+      }
+
+      await userDB.update({
+        password: newPassword
+      });
+
+      userDB = await AUN_USER.findByPk(user.email);
+
+      const userJson = _.pick(userDB.toJSON(), [
+        'email',
+        'name',
+        'phone',
+        'isAdmin',
+        'createdAt',
+        'updatedAt'
+      ]);
+
+      res.send(userJson);
+    } catch (err) {
+      logger.error(err);
+      res.status(500).send({
+        error: 'An error has occured trying to change password'
+      });
+    }
   }
 };
