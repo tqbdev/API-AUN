@@ -10,6 +10,7 @@ const NoteRouter = require('./NoteRouter');
 const EvidenceRouter = require('./EvidenceRouter');
 const EvidenceRefRouter = require('./EvidenceRefRouter');
 const UserRouter = require('./UserRouter');
+const ReversionRouter = require('./ReversionRouter');
 
 // Policies
 const { isAuthenticated } = require('../policies/Authenticated');
@@ -22,10 +23,17 @@ const CommentControllerPolicy = require('../policies//CommentControllerPolicy');
 const NoteControllerPolicy = require('../policies//NoteControllerPolicy');
 const UserControllerPolicy = require('../policies//UserControllerPolicy');
 const EvidenceControllerPolicy = require('../policies//EvidenceControllerPolicy');
+const ReversionControllerPolicy = require('../policies//ReversionControllerPolicy');
 
 module.exports = app => {
   app.use(CommonRouter);
   app.use('/sars', isAuthenticated, SARControllerPolicy.permission, SARRouter);
+  app.use(
+    '/reversions',
+    isAuthenticated,
+    ReversionControllerPolicy.permission,
+    ReversionRouter
+  );
   app.use(
     '/criterions',
     isAuthenticated,

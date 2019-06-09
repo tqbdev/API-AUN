@@ -50,6 +50,8 @@ app.use(fileUpload());
 require('./routes')(app);
 app.use((err, req, res, next) => {
   switch (err.message) {
+    case '405':
+      return res.status(405).send();
     case '404':
       return res.status(404).send();
     case '403':

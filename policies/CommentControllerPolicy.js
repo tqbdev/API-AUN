@@ -15,7 +15,7 @@ module.exports = {
       SubCriterionId = _.get(req, 'body.SubCriterionId') || null;
       await isSubCriterionBelongToUser(SubCriterionId, req);
 
-      CommentId = _.get(req, 'params.id') || null;
+      let CommentId = _.get(req, 'params.id') || null;
       await isCommentBelongToUser(CommentId, req);
 
       next();

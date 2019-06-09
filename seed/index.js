@@ -5,7 +5,8 @@ const {
   AUN_CRITERION,
   AUN_SUGGESTION,
   AUN_SUB_CRITERION,
-  AUN_ASSIGNMENT
+  AUN_ASSIGNMENT,
+  AUN_REVERSION
 } = require('../models');
 
 const Promise = require('bluebird');
@@ -14,6 +15,7 @@ const sars = require('./sars.json');
 const criterions = require('./criterions.json');
 const subCriterions = require('./subCriterions.json');
 const suggestions = require('./suggestions.json');
+const reversions = require('./reversion.json');
 const assignments = require('./assignments.json');
 
 sequelize
@@ -30,6 +32,12 @@ sequelize
     await Promise.all(
       sars.map(sar => {
         AUN_SAR.create(sar);
+      })
+    );
+
+    await Promise.all(
+      reversions.map(reversion => {
+        AUN_REVERSION.create(reversion);
       })
     );
 

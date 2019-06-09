@@ -67,6 +67,7 @@ module.exports = {
 
       if (sar.isTemplate) {
         const newSARId = await cloneSAR(sar.id);
+        console.log(newSARId);
         const [assignment, created] = await AUN_ASSIGNMENT.findOrCreate({
           where: {
             UserEmail: UserEmail,
@@ -78,7 +79,12 @@ module.exports = {
           }
         });
 
+        console.log(assignment);
+
         await assignment.addSARs([newSARId]);
+        await sar.update({
+          isAssigned: true
+        });
         const resData = await AUN_ASSIGNMENT.findByPk(assignment.id, {
           include: [
             {
@@ -100,7 +106,12 @@ module.exports = {
           }
         });
 
+        console.log(assignment);
+
         await assignment.addSARs([SARId]);
+        await sar.update({
+          isAssigned: true
+        });
         const resData = await AUN_ASSIGNMENT.findByPk(assignment.id, {
           include: [
             {
@@ -112,6 +123,7 @@ module.exports = {
         res.send(resData);
       }
     } catch (err) {
+      logger.error(err);
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
           return res.status(400).send({
@@ -149,6 +161,14 @@ module.exports = {
             }
           ]
         });
+
+        const sar = await AUN_SAR.findByPk(SARId);
+        const assignments = await sar.getAssignments();
+        if (_.isEmpty(assignments)) {
+          await sar.update({
+            isAssigned: false
+          });
+        }
 
         if (_.isEmpty(_.get(resData, 'SARs'))) {
           await assignment.destroy();

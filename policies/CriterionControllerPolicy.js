@@ -1,6 +1,9 @@
 const _ = require('lodash');
 
-const { isSARBelongToUser, isCriterionBelongToUser } = require('../utils');
+const {
+  isReversionBelongToUser,
+  isCriterionBelongToUser
+} = require('../utils');
 
 module.exports = {
   async permission(req, res, next) {
@@ -16,14 +19,14 @@ module.exports = {
           break;
       }
 
-      let SARId = null;
-      SARId = _.get(req, 'query.SARId') || null;
-      await isSARBelongToUser(SARId, req);
+      let ReversionId = null;
+      ReversionId = _.get(req, 'query.ReversionId') || null;
+      await isReversionBelongToUser(ReversionId, req);
 
-      SARId = _.get(req, 'body.SARId') || null;
-      await isSARBelongToUser(SARId, req);
+      ReversionId = _.get(req, 'body.ReversionId') || null;
+      await isReversionBelongToUser(ReversionId, req);
 
-      CriterionId = _.get(req, 'params.id') || null;
+      let CriterionId = _.get(req, 'params.id') || null;
       await isCriterionBelongToUser(CriterionId, req);
 
       next();
