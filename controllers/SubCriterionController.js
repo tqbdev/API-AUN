@@ -1,14 +1,19 @@
 const _ = require('lodash');
 const logger = require('log4js').getLogger('error');
 
-const { AUN_SUB_CRITERION, AUN_EVIDENCE_REF, sequelize } = require('../models');
+const {
+  AUN_SUB_CRITERION,
+  AUN_EVIDENCE_REF,
+  AUN_COMMENT,
+  sequelize
+} = require('../models');
 
 const { findEvidence } = require('../utils');
 
 module.exports = {
   async readAll(req, res) {
     try {
-      const { CriterionId } = req.query;
+      const { CriterionId, include } = req.query;
       if (!CriterionId) {
         return res.status(404).send({
           error: 'Require CriterionId param'
@@ -17,7 +22,54 @@ module.exports = {
 
       const SubCriterions = await AUN_SUB_CRITERION.findAll({
         where: { CriterionId: CriterionId }
+      }).map(subCriterion => {
+        return subCriterion.toJSON();
       });
+
+      if (_.includes(_.split(include, ','), 'note')) {
+        for (let i = 0, iMax = SubCriterions.length; i < iMax; i++) {
+          let subCriterion = SubCriterions[i];
+
+          subCriterion.NoteCount = await AUN_COMMENT.count({
+            where: {
+              isNote: true,
+              UserEmail: req.user.email
+            },
+            include: [
+              {
+                model: AUN_SUB_CRITERION,
+                attributes: [],
+                as: 'SubCriterions',
+                where: {
+                  id: subCriterion.id
+                }
+              }
+            ]
+          });
+        }
+      }
+
+      if (_.includes(_.split(include, ','), 'comment')) {
+        for (let i = 0, iMax = SubCriterions.length; i < iMax; i++) {
+          let subCriterion = SubCriterions[i];
+
+          subCriterion.CommentCount = await AUN_COMMENT.count({
+            where: {
+              isNote: false
+            },
+            include: [
+              {
+                model: AUN_SUB_CRITERION,
+                attributes: [],
+                as: 'SubCriterions',
+                where: {
+                  id: subCriterion.id
+                }
+              }
+            ]
+          });
+        }
+      }
 
       res.send(SubCriterions);
     } catch (err) {
