@@ -1,12 +1,12 @@
 const _ = require('lodash');
 const logger = require('log4js').getLogger('error');
 
-const { AUN_CRITERION } = require('../models');
+const { AUN_CRITERION, sequelize } = require('../models');
 
 module.exports = {
   async readAll(req, res) {
     try {
-      const { ReversionId } = req.query;
+      const { ReversionId, include } = req.query;
       if (!ReversionId) {
         return res.status(404).send({
           error: 'Require ReversionId param'
@@ -15,7 +15,46 @@ module.exports = {
 
       const criterions = await AUN_CRITERION.findAll({
         where: { ReversionId: ReversionId }
+      }).map(criterion => {
+        return criterion.toJSON();
       });
+
+      if (_.includes(_.split(include, ','), 'note')) {
+        for (let i = 0, iMax = criterions.length; i < iMax; i++) {
+          let criterion = criterions[i];
+
+          const count = await sequelize.query(
+            'SELECT COUNT(*) as count FROM AUN_COMMENTs WHERE UserEmail = :UserEmail AND isNote = true AND id IN (SELECT CommentId FROM AUN_SUB_CRITERION_COMMENTs WHERE SubCriterionId IN (SELECT id FROM AUN_SUB_CRITERIONs WHERE CriterionId = :CriterionId))',
+            {
+              replacements: {
+                CriterionId: criterion.id,
+                UserEmail: req.user.email
+              },
+              type: sequelize.QueryTypes.SELECT
+            }
+          );
+
+          criterion.NoteCount = _.get(count, '[0].count');
+        }
+      }
+
+      if (_.includes(_.split(include, ','), 'comment')) {
+        for (let i = 0, iMax = criterions.length; i < iMax; i++) {
+          let criterion = criterions[i];
+
+          const count = await sequelize.query(
+            'SELECT COUNT(*) as count FROM AUN_COMMENTs WHERE isNote = false AND id IN (SELECT CommentId FROM AUN_SUB_CRITERION_COMMENTs WHERE SubCriterionId IN (SELECT id FROM AUN_SUB_CRITERIONs WHERE CriterionId = :CriterionId))',
+            {
+              replacements: {
+                CriterionId: criterion.id
+              },
+              type: sequelize.QueryTypes.SELECT
+            }
+          );
+
+          criterion.CommentCount = _.get(count, '[0].count');
+        }
+      }
 
       res.send(criterions);
     } catch (err) {
