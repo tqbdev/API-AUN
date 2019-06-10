@@ -25,7 +25,8 @@ const {
 const isSARBelongToUser = async (id, req) => {
   if (id) {
     const user = req.user;
-    const assignment = await AUN_ASSIGNMENT.findOne({
+    const assignments = await AUN_ASSIGNMENT.findAll({
+      attributes: ['role'],
       where: {
         UserEmail: user.email
       },
@@ -33,11 +34,14 @@ const isSARBelongToUser = async (id, req) => {
         {
           model: AUN_SAR,
           as: 'SARs',
+          attributes: [],
           where: {
             id: id
           }
         }
       ]
+    }).map(assignment => {
+      return assignment.toJSON().role;
     });
 
     const SAR = await AUN_SAR.findByPk(id);
@@ -53,17 +57,18 @@ const isSARBelongToUser = async (id, req) => {
         throw new Error('405');
       }
     } else {
-      if (!assignment) {
+      if (_.isEmpty(assignments)) {
         throw new Error('403');
       } else {
         if (req.role === AppContanst.ENUM.ROLE.EDITOR) {
-          if (assignment.role !== req.role) {
+          // if (assignment.role !== req.role) {
+          if (!_.includes(assignments, req.role)) {
             throw new Error('403');
           } else if (!req.isNewestReversion && req.point !== 'REVERSION') {
             throw new Error('405');
           }
         }
-        req.role = assignment.role;
+        req.roles = assignments;
       }
     }
 

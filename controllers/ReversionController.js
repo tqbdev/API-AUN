@@ -10,17 +10,23 @@ const AppConstants = require('../app.constants');
 module.exports = {
   async readAll(req, res) {
     try {
-      const { SARId } = req.query;
+      const { SARId, role } = req.query;
       if (!SARId) {
         return res.status(400).send({
           error: 'Require SARId param'
         });
       }
 
+      if (!_.includes(req.roles, role)) {
+        return res.status(403).send({
+          error: 'You do not have access to this resource'
+        });
+      }
+
       const reversions = await AUN_REVERSION.findAll({
         where: {
           SARId: SARId,
-          isRelease: req.role === AppConstants.ENUM.ROLE.REVIEWER
+          isRelease: role === AppConstants.ENUM.ROLE.REVIEWER
         }
       });
 
