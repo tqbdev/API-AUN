@@ -51,6 +51,25 @@ module.exports = {
           project.curEditorVersion = curEditorVersion;
         }
 
+        const templates = _.get(sars, 'templates');
+        for (let i = 0, iMax = templates.length; i < iMax; i++) {
+          let template = templates[i];
+          template = templates[i] = template.toJSON();
+
+          const reversion = await AUN_REVERSION.findOne({
+            where: {
+              SARId: template.id
+            },
+            order: [['version', 'ASC']]
+          });
+
+          if (reversion) {
+            template.ReversionId = reversion.id;
+          } else {
+            template.ReversionId = null;
+          }
+        }
+
         res.send(sars);
       } else {
         const sars = await AUN_ASSIGNMENT.findAll({
@@ -129,7 +148,7 @@ module.exports = {
         }
       }
 
-      const sar = (await AUN_SAR.findByPk(id)).toJSON();
+      let sar = (await AUN_SAR.findByPk(id)).toJSON();
 
       if (!sar) {
         return res.status(404).send({
@@ -137,21 +156,36 @@ module.exports = {
         });
       }
 
-      const curReleaseVersion = await AUN_REVERSION.max('version', {
-        where: {
-          isRelease: true,
-          SARId: sar.id
-        }
-      });
-      const curEditorVersion = await AUN_REVERSION.max('version', {
-        where: {
-          isRelease: false,
-          SARId: sar.id
-        }
-      });
+      if (sar.isTemplate) {
+        const reversion = await AUN_REVERSION.findOne({
+          where: {
+            SARId: sar.id
+          },
+          order: [['version', 'ASC']]
+        });
 
-      sar.curReleaseVersion = curReleaseVersion;
-      sar.curEditorVersion = curEditorVersion;
+        if (reversion) {
+          sar.ReversionId = reversion.id;
+        } else {
+          sar.ReversionId = null;
+        }
+      } else {
+        const curReleaseVersion = await AUN_REVERSION.max('version', {
+          where: {
+            isRelease: true,
+            SARId: sar.id
+          }
+        });
+        const curEditorVersion = await AUN_REVERSION.max('version', {
+          where: {
+            isRelease: false,
+            SARId: sar.id
+          }
+        });
+
+        sar.curReleaseVersion = curReleaseVersion;
+        sar.curEditorVersion = curEditorVersion;
+      }
 
       res.send(sar);
     } catch (err) {
@@ -167,7 +201,14 @@ module.exports = {
       const { name } = req.body;
       const sar = await AUN_SAR.create({ name });
 
-      res.send(sar.toJSON());
+      const reversion = await AUN_REVERSION.create({
+        SARId: sar.id
+      });
+
+      let sarJSON = sar.toJSON();
+      sarJSON.ReversionId = reversion.id;
+
+      res.send(sarJSON);
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
@@ -212,7 +253,24 @@ module.exports = {
 
       await sar.update({ name });
 
-      res.send(sar.toJSON());
+      let sarJSON = sar.toJSON();
+
+      if (sar.isTemplate) {
+        const reversion = await AUN_REVERSION.findOne({
+          where: {
+            SARId: sar.id
+          },
+          order: [['version', 'ASC']]
+        });
+
+        if (reversion) {
+          sarJSON.ReversionId = reversion.id;
+        } else {
+          sarJSON.ReversionId = null;
+        }
+      }
+
+      res.send(sarJSON);
     } catch (err) {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
