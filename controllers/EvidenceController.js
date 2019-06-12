@@ -16,16 +16,17 @@ const { deleteFile, changeEvidence } = require('../utils');
 module.exports = {
   async readAll(req, res) {
     try {
-      const { SuggestionId, CriterionId, SARId } = req.query;
-      if (!SuggestionId && !CriterionId && !SARId) {
+      const { SuggestionId, CriterionId, ReversionId } = req.query;
+      if (!SuggestionId && !CriterionId && !ReversionId) {
         return res.status(404).send({
-          error: 'Require SuggestionId or CriterionId param or SARId param'
+          error:
+            'Require SuggestionId or CriterionId param or ReversionId param'
         });
       }
 
-      if (SuggestionId && CriterionId && SARId) {
+      if (SuggestionId && CriterionId && ReversionId) {
         return res.status(406).send({
-          error: 'Only one param: SuggestionId or CriterionId or SARId'
+          error: 'Only one param: SuggestionId or CriterionId or ReversionId'
         });
       }
 
@@ -45,22 +46,22 @@ module.exports = {
         );
 
         res.send(evidences);
-      } else if (SARId) {
+      } else if (ReversionId) {
         // const evidences = await sequelize.query(
-        //   'SELECT * FROM AUN_EVIDENCEs WHERE SuggestionId IN (SELECT id FROM AUN_SUGGESTIONs WHERE CriterionId IN (SELECT id FROM AUN_CRITERIONs WHERE SARId = :SARId))',
+        //   'SELECT * FROM AUN_EVIDENCEs WHERE SuggestionId IN (SELECT id FROM AUN_SUGGESTIONs WHERE CriterionId IN (SELECT id FROM AUN_CRITERIONs WHERE ReversionId = :ReversionId))',
         //   {
-        //     replacements: { SARId: SARId },
+        //     replacements: { ReversionId: ReversionId },
         //     type: sequelize.QueryTypes.SELECT
         //   }
         // );
 
         // res.send(evidences);
-        if (SARId) {
+        if (ReversionId) {
           const evidenceTree = [];
 
           const criterionIds = await AUN_CRITERION.findAll({
             where: {
-              SARId: SARId
+              ReversionId: ReversionId
             },
             attributes: ['id']
           }).map(criterionId => {

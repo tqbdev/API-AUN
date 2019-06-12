@@ -5,7 +5,7 @@ const {
   isSuggestionBelongToUser,
   isCriterionBelongToUser,
   isEvidenceBelongToUser,
-  isSARBelongToUser
+  isReversionBelongToUser
 } = require('../utils');
 
 module.exports = {
@@ -19,9 +19,9 @@ module.exports = {
           break;
       }
 
-      let SARId = null;
-      SARId = _.get(req, 'query.SARId') || null;
-      await isSARBelongToUser(SARId, req);
+      let ReversionId = null;
+      ReversionId = _.get(req, 'query.ReversionId') || null;
+      await isReversionBelongToUser(ReversionId, req);
 
       let SuggestionId = null;
       SuggestionId = _.get(req, 'query.SuggestionId') || null;
