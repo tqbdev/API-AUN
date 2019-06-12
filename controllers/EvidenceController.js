@@ -203,9 +203,9 @@ module.exports = {
             }
 
             const originName = _.get(file, 'name');
+            const totalSeconds = Math.floor(new Date().getTime() / 1000);
             const hashName =
-              md5(originName + new Date().toDateString()) +
-              path.extname(originName);
+              md5(originName + totalSeconds) + path.extname(originName);
             const appPath = path.normalize(__dirname + '/..');
             const uploadPath = appPath + '/storage/' + hashName;
             const linkFile = '/storage/' + hashName;
