@@ -1,7 +1,7 @@
 const _ = require('lodash');
 const logger = require('log4js').getLogger('error');
 
-const { AUN_REVERSION } = require('../models');
+const { AUN_REVERSION, AUN_SAR } = require('../models');
 
 const { cloneReversion } = require('../utils');
 
@@ -64,12 +64,43 @@ module.exports = {
     try {
       const { ReversionId, SARId } = req.body;
 
+      let sar = null;
+
       if (ReversionId) {
+        const reversionDB = await AUN_REVERSION.findByPk(ReversionId);
+        if (!reversionDB) {
+          return res.status(404).send({
+            error: 'Not found the reversion has id ' + ReversionId
+          });
+        } else {
+          sar = await reversionDB.getSAR();
+        }
+
+        if (sar && sar.isTemplate) {
+          return res.status(400).send({
+            error: 'Cannot create reversion for template'
+          });
+        }
+
         const reversion = await cloneReversion(ReversionId);
         return res.send(reversion);
       }
 
       if (SARId) {
+        sar = await AUN_SAR.findByPk(SARId);
+
+        if (!sar) {
+          return res.status(404).send({
+            error: 'Not found the SAR has id ' + SARId
+          });
+        }
+
+        if (sar.isTemplate) {
+          return res.status(400).send({
+            error: 'Cannot create reversion for template'
+          });
+        }
+
         const reversion = AUN_REVERSION.create({
           SARId: SARId
         });
@@ -96,6 +127,22 @@ module.exports = {
     try {
       const { ReversionId } = req.body;
 
+      let sar = null;
+      const reversionDB = await AUN_REVERSION.findByPk(ReversionId);
+      if (!reversionDB) {
+        return res.status(404).send({
+          error: 'Not found the reversion has id ' + ReversionId
+        });
+      } else {
+        sar = await reversionDB.getSAR();
+      }
+
+      if (sar && sar.isTemplate) {
+        return res.status(400).send({
+          error: 'Cannot release reversion for template'
+        });
+      }
+
       const reversion = await cloneReversion(ReversionId, true);
 
       res.send(reversion);
@@ -103,12 +150,12 @@ module.exports = {
       switch (err.name) {
         case 'SequelizeUniqueConstraintError':
           return res.status(400).send({
-            error: `Can't create a new reversion. Because existing!!!`
+            error: `Can't release a new reversion. Because existing!!!`
           });
         default:
           logger.error(err);
           res.status(500).send({
-            error: 'Error in create a reversion'
+            error: 'Error in release a reversion'
           });
       }
     }

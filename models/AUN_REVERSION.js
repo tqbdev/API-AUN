@@ -30,6 +30,7 @@ module.exports = (sequelize, DataTypes) => {
         name: 'SARId',
         allowNull: false
       },
+      as: 'SAR',
       onDelete: 'CASCADE'
     });
     AUN_REVERSION.hasMany(models.AUN_CRITERION, {
