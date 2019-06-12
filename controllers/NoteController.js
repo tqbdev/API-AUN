@@ -7,14 +7,14 @@ module.exports = {
   async readAll(req, res) {
     try {
       const user = req.user;
-      const { SubCriterionId, SARId } = req.query;
-      if (!SubCriterionId && !SARId) {
+      const { SubCriterionId, ReversionId } = req.query;
+      if (!SubCriterionId && !ReversionId) {
         return res.status(405).send({
-          error: 'Require SubCriterionId or SARId param'
+          error: 'Require SubCriterionId or ReversionId param'
         });
       }
 
-      if (SubCriterionId && SARId) {
+      if (SubCriterionId && ReversionId) {
         return res.status(405).send({
           error: 'Allow only one param'
         });
@@ -47,12 +47,12 @@ module.exports = {
         return res.send(notes);
       }
 
-      if (SARId) {
+      if (ReversionId) {
         const noteTree = [];
 
         const criterionIds = await AUN_CRITERION.findAll({
           where: {
-            SARId: SARId
+            ReversionId: ReversionId
           },
           attributes: ['id']
         }).map(criterionId => {

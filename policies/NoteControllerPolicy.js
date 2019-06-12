@@ -3,15 +3,15 @@ const _ = require('lodash');
 const {
   isNoteBelongToUser,
   isSubCriterionBelongToUser,
-  isSARBelongToUser
+  isReversionBelongToUser
 } = require('../utils');
 
 module.exports = {
   async permission(req, res, next) {
     try {
-      let SARId = null;
-      SARId = _.get(req, 'query.SARId') || null;
-      await isSARBelongToUser(SARId, req);
+      let ReversionId = null;
+      ReversionId = _.get(req, 'query.ReversionId') || null;
+      await isReversionBelongToUser(ReversionId, req);
 
       let SubCriterionId = null;
       SubCriterionId = _.get(req, 'query.SubCriterionId') || null;
