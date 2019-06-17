@@ -9,10 +9,16 @@ const {
 module.exports = {
   async permission(req, res, next) {
     try {
+      const user = req.user;
+
       switch (req.method) {
         case 'POST':
-        case 'PATCH':
         case 'DELETE':
+          if (!user.isAdmin) {
+            throw new Error('403');
+          }
+          break;
+        case 'PATCH':
           req.role = AppConstants.ENUM.ROLE.EDITOR;
           break;
       }
