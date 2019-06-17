@@ -67,7 +67,6 @@ module.exports = {
 
       if (sar.isTemplate) {
         const newSARId = await cloneSAR(sar.id);
-        console.log(newSARId);
         const [assignment, created] = await AUN_ASSIGNMENT.findOrCreate({
           where: {
             UserEmail: UserEmail,
@@ -78,8 +77,6 @@ module.exports = {
             role: role
           }
         });
-
-        console.log(assignment);
 
         await assignment.addSARs([newSARId]);
         await sar.update({
@@ -105,8 +102,6 @@ module.exports = {
             role: role
           }
         });
-
-        console.log(assignment);
 
         await assignment.addSARs([SARId]);
         await sar.update({
