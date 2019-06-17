@@ -9,12 +9,13 @@ require('dotenv').config();
 var app = require('../app');
 var debug = require('debug')('api-aun:server');
 var http = require('http');
+const config = require('../config/config');
 
 /**
  * Get port from environment and store in Express.
  */
 
-var port = normalizePort(process.env.PORT || '3000');
+var port = normalizePort(config.PORT);
 app.set('port', port);
 
 /**
@@ -85,4 +86,5 @@ function onListening() {
   var addr = server.address();
   var bind = typeof addr === 'string' ? 'pipe ' + addr : 'port ' + addr.port;
   debug('Listening on ' + bind);
+  console.log('\x1b[32m%s\x1b[0m', 'AUN API is listening port ' + port);
 }

@@ -5,12 +5,14 @@ module.exports = {
     user: process.env.DB_USER || 'root',
     password: process.env.DB_PASS || 'root',
     options: {
+      operatorsAliases: false,
       dialect: process.env.DB_DIALECT || 'mysql',
-      host: process.env.DB_HOST || 'localhost'
+      host: process.env.DB_HOST || 'localhost',
+      logging: +process.env.DB_LOGGING ? true : false
     }
   },
   authencation: {
     jwtSecret: process.env.JWT_SECRET || 'secret',
-    jwtExpiresIn: 60 * 60 * 1 // 1 hour
+    jwtExpiresIn: +process.env.JWT_EXPIRE_TIME || 60 * 60 * 1 // 1 hour
   }
 };
