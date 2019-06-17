@@ -9,7 +9,6 @@ const fileUpload = require('express-fileupload');
 const rfs = require('rotating-file-stream');
 
 const { sequelize } = require('./models');
-const config = require('./config/config');
 
 const logStream = rfs('access.log', {
   interval: '30d', // rotate monthly
@@ -72,8 +71,8 @@ sequelize
     force: false
   })
   .then(() => {
-    app.listen(config.PORT);
-    console.log(`Server started on port ${config.PORT}`);
+    // app.listen(config.PORT);
+    // console.log(`Server started on port ${config.PORT}`);
   });
 
 module.exports = app;
