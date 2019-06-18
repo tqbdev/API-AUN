@@ -176,7 +176,7 @@ const findEvidence = async (subCriterion, findTotal = false) => {
   const criterionId = subCriterion.CriterionId;
 
   let contentDoc = new DOMParser().parseFromString(content);
-  const aTags = xPathSelect(contentDoc, '//a[@data-value and @href]');
+  const aTags = xPathSelect(contentDoc, '//a[@data-mention and @href]');
 
   let keys = [];
   _.forEach(aTags, aTag => {
