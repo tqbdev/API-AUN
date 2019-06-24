@@ -27,7 +27,7 @@ module.exports = {
       });
 
       if (_.includes(_.split(include, ','), 'note')) {
-        for (let i = 0, iMax = SubCriterions.length; i < iMax; i++) {
+        for (let i = 0, iMax = +_.get(SubCriterions, 'length'); i < iMax; i++) {
           let subCriterion = SubCriterions[i];
 
           subCriterion.NoteCount = await AUN_COMMENT.count({
@@ -50,7 +50,7 @@ module.exports = {
       }
 
       if (_.includes(_.split(include, ','), 'comment')) {
-        for (let i = 0, iMax = SubCriterions.length; i < iMax; i++) {
+        for (let i = 0, iMax = +_.get(SubCriterions, 'length'); i < iMax; i++) {
           let subCriterion = SubCriterions[i];
 
           subCriterion.CommentCount = await AUN_COMMENT.count({
@@ -113,7 +113,7 @@ module.exports = {
 
       const evidences = await findEvidence(subCriterion, true);
       if (evidences) {
-        for (let i = 0, iMax = evidences.length; i < iMax; i++) {
+        for (let i = 0, iMax = +_.get(evidences, 'length'); i < iMax; i++) {
           const evidence = evidences[i];
           await AUN_EVIDENCE_REF.create({
             SubCriterionId: subCriterion.id,
@@ -183,7 +183,7 @@ module.exports = {
         );
         const evidences = await findEvidence(subCriterion, true);
         if (evidences) {
-          for (let i = 0, iMax = evidences.length; i < iMax; i++) {
+          for (let i = 0, iMax = +_.get(evidences, 'length'); i < iMax; i++) {
             const evidence = evidences[i];
             await AUN_EVIDENCE_REF.create({
               SubCriterionId: subCriterion.id,

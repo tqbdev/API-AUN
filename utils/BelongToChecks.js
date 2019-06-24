@@ -82,6 +82,7 @@ const isReversionBelongToUser = async (id, req) => {
       });
 
       req.isNewestReversion = reversion.id === newestReversion.id;
+      req.isRelease = reversion.isRelease;
 
       await isSARBelongToUser(reversion.SARId, req);
     }

@@ -23,12 +23,17 @@ module.exports = {
         });
       }
 
-      const reversions = await AUN_REVERSION.findAll({
+      const queryCondition = {
         where: {
-          SARId: SARId,
-          isRelease: role === AppConstants.ENUM.ROLE.REVIEWER
+          SARId: SARId
         }
-      });
+      };
+
+      if (role === AppConstants.ENUM.ROLE.REVIEWER) {
+        queryCondition.where.isRelease = true;
+      }
+
+      const reversions = await AUN_REVERSION.findAll(queryCondition);
 
       res.send(reversions);
     } catch (err) {
@@ -62,11 +67,10 @@ module.exports = {
 
   async create(req, res) {
     try {
-      const { ReversionId, SARId } = req.body;
-
-      let sar = null;
+      const { ReversionId } = req.body;
 
       if (ReversionId) {
+        let sar = null;
         const reversionDB = await AUN_REVERSION.findByPk(ReversionId);
         if (!reversionDB) {
           return res.status(404).send({
@@ -83,27 +87,6 @@ module.exports = {
         }
 
         const reversion = await cloneReversion(ReversionId);
-        return res.send(reversion);
-      }
-
-      if (SARId) {
-        sar = await AUN_SAR.findByPk(SARId);
-
-        if (!sar) {
-          return res.status(404).send({
-            error: 'Not found the SAR has id ' + SARId
-          });
-        }
-
-        if (sar.isTemplate) {
-          return res.status(400).send({
-            error: 'Cannot create reversion for template'
-          });
-        }
-
-        const reversion = AUN_REVERSION.create({
-          SARId: SARId
-        });
         return res.send(reversion);
       }
 
@@ -125,17 +108,9 @@ module.exports = {
 
   async release(req, res) {
     try {
-      const { ReversionId } = req.body;
+      const { SARId } = req.body;
 
-      let sar = null;
-      const reversionDB = await AUN_REVERSION.findByPk(ReversionId);
-      if (!reversionDB) {
-        return res.status(404).send({
-          error: 'Not found the reversion has id ' + ReversionId
-        });
-      } else {
-        sar = await reversionDB.getSAR();
-      }
+      const sar = await AUN_SAR.findByPk(SARId);
 
       if (sar && sar.isTemplate) {
         return res.status(400).send({
@@ -143,7 +118,21 @@ module.exports = {
         });
       }
 
-      const reversion = await cloneReversion(ReversionId, true);
+      const curReversion = await AUN_REVERSION.findOne({
+        where: {
+          SARId: SARId
+        },
+        order: [['version', 'DESC']]
+      });
+
+      await curReversion.update({
+        isRelease: true
+      });
+
+      // const reversion = await cloneReversion(ReversionId, true);
+      const reversion = await AUN_REVERSION.findByPk(curReversion.id);
+
+      await cloneReversion(curReversion.id);
 
       res.send(reversion);
     } catch (err) {
