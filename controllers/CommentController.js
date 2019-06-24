@@ -15,6 +15,12 @@ module.exports = {
         });
       }
 
+      if (!_.includes(req.roles, role)) {
+        return res.status(403).send({
+          error: 'You do not have access to this resource'
+        });
+      }
+
       const subCriterion = await AUN_SUB_CRITERION.findByPk(SubCriterionId);
 
       if (!subCriterion) {
@@ -29,7 +35,11 @@ module.exports = {
         }
       };
 
-      if (role === AppConstant.ENUM.ROLE.REVIEWER) {
+      if (
+        role === AppConstant.ENUM.ROLE.REVIEWER ||
+        (_.size(req.roles) === 1 &&
+          _.includes(req.roles, AppConstant.ENUM.ROLE.REVIEWER))
+      ) {
         queryCondition.where.isEditor = false;
       }
 
@@ -49,6 +59,12 @@ module.exports = {
       const { id } = req.params;
       const { role } = req.query;
 
+      if (!_.includes(req.roles, role)) {
+        return res.status(403).send({
+          error: 'You do not have access to this resource'
+        });
+      }
+
       const queryCondition = {
         where: {
           id: id,
@@ -56,7 +72,11 @@ module.exports = {
         }
       };
 
-      if (role === AppConstant.ENUM.ROLE.REVIEWER) {
+      if (
+        role === AppConstant.ENUM.ROLE.REVIEWER ||
+        (_.size(req.roles) === 1 &&
+          _.includes(req.roles, AppConstant.ENUM.ROLE.REVIEWER))
+      ) {
         queryCondition.where.isEditor = false;
       }
 
@@ -80,12 +100,36 @@ module.exports = {
   async create(req, res) {
     try {
       const user = req.user;
-      const { title, SubCriterionId, content, isEditor } = req.body;
+      const { title, SubCriterionId, content } = req.body;
+      let { isEditor } = req.body;
+
+      if (_.isNil(isEditor)) {
+        return res.status(400).send({
+          error: 'Require isEditor field'
+        });
+      }
+
+      if (
+        (isEditor && !_.includes(req.roles, AppConstant.ENUM.ROLE.EDITOR)) ||
+        (!isEditor && !_.includes(req.roles, AppConstant.ENUM.ROLE.REVIEWER))
+      ) {
+        return res.status(400).send({
+          error: `You don't have ${
+            isEditor ? 'EDITOR' : 'REVIEWER'
+          } role in this project`
+        });
+      }
+
+      if (!isEditor && !req.isRelease) {
+        return res.status(400).send({
+          error: `You can't comment with REVIEWER role because this version isn't released yet`
+        });
+      }
 
       const comment = await AUN_COMMENT.create({
         title,
         content,
-        isEditor: (isEditor && !req.isRelease) || true,
+        isEditor,
         // SubCriterionId,
         UserEmail: user.email
       });
