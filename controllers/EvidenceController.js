@@ -68,7 +68,11 @@ module.exports = {
             return _.get(criterionId.toJSON(), 'id');
           });
 
-          for (let i = 0, iMax = criterionIds.length; i < iMax; i++) {
+          for (
+            let i = 0, iMax = +_.get(criterionIds, 'length');
+            i < iMax;
+            i++
+          ) {
             const criterionId = criterionIds[i];
             const res = [];
 
@@ -78,7 +82,11 @@ module.exports = {
               }
             });
 
-            for (let j = 0, jMax = suggestions.length; j < jMax; j++) {
+            for (
+              let j = 0, jMax = +_.get(suggestions, 'length');
+              j < jMax;
+              j++
+            ) {
               const suggestion = suggestions[j];
               const evidences = await suggestion
                 .getEvidences()
@@ -274,7 +282,11 @@ module.exports = {
 
         const subCriterions = await evidence.getSubCriterions();
         if (subCriterions) {
-          for (let i = 0, iMax = subCriterions.length; i < iMax; i++) {
+          for (
+            let i = 0, iMax = +_.get(subCriterions, 'length');
+            i < iMax;
+            i++
+          ) {
             const subCriterion = subCriterions[i];
             const content = await changeEvidence(subCriterion, evidence);
             await subCriterion.update({
@@ -320,14 +332,18 @@ module.exports = {
       });
 
       if (evidences) {
-        for (let i = 0, iMax = evidences.length; i < iMax; i++) {
+        for (let i = 0, iMax = +_.get(evidences, 'length'); i < iMax; i++) {
           const evidence = evidences[i];
           const type = evidence.type;
           const link = evidence.link;
 
           const subCriterions = await evidence.getSubCriterions();
           if (subCriterions) {
-            for (let j = 0, jMax = subCriterions.length; j < jMax; j++) {
+            for (
+              let j = 0, jMax = +_.get(subCriterions, 'length');
+              j < jMax;
+              j++
+            ) {
               const subCriterion = subCriterions[j];
               const content = await changeEvidence(
                 subCriterion,

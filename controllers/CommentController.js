@@ -1,24 +1,19 @@
 const _ = require('lodash');
 const logger = require('log4js').getLogger('error');
 
+const AppConstant = require('../app.constants');
+
 const { AUN_COMMENT, AUN_SUB_CRITERION } = require('../models');
 
 module.exports = {
   async readAll(req, res) {
     try {
-      const { SubCriterionId } = req.query;
+      const { SubCriterionId, role } = req.query;
       if (!SubCriterionId) {
         return res.status(404).send({
           error: 'Require SubCriterionId param'
         });
       }
-
-      // const comments = await AUN_COMMENT.findAll({
-      //   where: {
-      //     SubCriterionId: SubCriterionId,
-      //     isNote: false
-      //   }
-      // });
 
       const subCriterion = await AUN_SUB_CRITERION.findByPk(SubCriterionId);
 
@@ -28,11 +23,17 @@ module.exports = {
         });
       }
 
-      const comments = await subCriterion.getComments({
+      const queryCondition = {
         where: {
           isNote: false
         }
-      });
+      };
+
+      if (role === AppConstant.ENUM.ROLE.REVIEWER) {
+        queryCondition.where.isEditor = false;
+      }
+
+      const comments = await subCriterion.getComments(queryCondition);
 
       res.send(comments);
     } catch (err) {
@@ -46,13 +47,20 @@ module.exports = {
   async readOne(req, res) {
     try {
       const { id } = req.params;
+      const { role } = req.query;
 
-      const comment = await AUN_COMMENT.findOne({
+      const queryCondition = {
         where: {
           id: id,
           isNote: false
         }
-      });
+      };
+
+      if (role === AppConstant.ENUM.ROLE.REVIEWER) {
+        queryCondition.where.isEditor = false;
+      }
+
+      const comment = await AUN_COMMENT.findOne(queryCondition);
 
       if (!comment) {
         return res.status(404).send({
@@ -72,11 +80,12 @@ module.exports = {
   async create(req, res) {
     try {
       const user = req.user;
-      const { title, SubCriterionId, content } = req.body;
+      const { title, SubCriterionId, content, isEditor } = req.body;
 
       const comment = await AUN_COMMENT.create({
         title,
         content,
+        isEditor: (isEditor && !req.isRelease) || true,
         // SubCriterionId,
         UserEmail: user.email
       });

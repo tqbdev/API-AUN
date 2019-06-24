@@ -49,7 +49,7 @@ const cloneChildCriterion = async (criterion, ReversionId) => {
     return item.toJSON();
   });
 
-  for (let i = 0, iMax = suggestions.length; i < iMax; i++) {
+  for (let i = 0, iMax = +_.get(suggestions, 'length'); i < iMax; i++) {
     const suggestion = suggestions[i];
     await cloneEvidence(suggestion, newCriterion.id);
   }
@@ -106,7 +106,7 @@ const cloneSAR = async oldSARId => {
     SARId: newSAR.id
   });
 
-  for (let i = 0, iMax = criterions.length; i < iMax; i++) {
+  for (let i = 0, iMax = +_.get(criterions, 'length'); i < iMax; i++) {
     const criterion = criterions[i];
     await cloneChildCriterion(criterion, reversion.id);
   }
@@ -118,12 +118,19 @@ const cloneReversion = async (reversionId, isRelease = false) => {
   let oldReversion = await AUN_REVERSION.findByPk(reversionId);
   oldReversion = oldReversion.toJSON();
 
-  const total = await AUN_REVERSION.count({
-    where: {
-      SARId: oldReversion.SARId,
-      isRelease: isRelease
-    }
-  });
+  // const total = await AUN_REVERSION.count({
+  //   where: {
+  //     SARId: oldReversion.SARId,
+  //     isRelease: isRelease
+  //   }
+  // });
+
+  const nextVersion =
+    +(await AUN_REVERSION.max('version', {
+      where: {
+        SARId: oldReversion.SARId
+      }
+    })) + 1;
 
   const criterions = await AUN_CRITERION.findAll({
     where: {
@@ -135,11 +142,11 @@ const cloneReversion = async (reversionId, isRelease = false) => {
 
   const newReversion = await AUN_REVERSION.create({
     SARId: oldReversion.SARId,
-    version: +total + 1,
+    version: nextVersion,
     isRelease: isRelease
   });
 
-  for (let i = 0, iMax = criterions.length; i < iMax; i++) {
+  for (let i = 0, iMax = +_.get(criterions, 'length'); i < iMax; i++) {
     const criterion = criterions[i];
     await cloneChildCriterion(criterion, newReversion.id);
   }
@@ -153,11 +160,11 @@ const cloneReversion = async (reversionId, isRelease = false) => {
     }
   );
 
-  for (let i = 0, iMax = subCriterions.length; i < iMax; i++) {
+  for (let i = 0, iMax = +_.get(subCriterions, 'length'); i < iMax; i++) {
     const subCriterion = subCriterions[i];
     const evidences = await findEvidence(subCriterion, true);
     if (evidences) {
-      for (let j = 0, jMax = evidences.length; j < jMax; j++) {
+      for (let j = 0, jMax = +_.get(evidences, 'length'); j < jMax; j++) {
         const evidence = evidences[j];
         await AUN_EVIDENCE_REF.create({
           SubCriterionId: subCriterion.id,
@@ -210,7 +217,7 @@ const findEvidence = async (subCriterion, findTotal = false) => {
 
   keys.push(...fileKeys);
   let evidences = null;
-  if (keys.length) {
+  if (+_.get(keys, 'length')) {
     evidences = await AUN_EVIDENCE.findAll({
       where: {
         link: {

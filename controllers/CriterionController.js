@@ -20,7 +20,7 @@ module.exports = {
       });
 
       if (_.includes(_.split(include, ','), 'note')) {
-        for (let i = 0, iMax = criterions.length; i < iMax; i++) {
+        for (let i = 0, iMax = +_.get(criterions, 'length'); i < iMax; i++) {
           let criterion = criterions[i];
 
           const count = await sequelize.query(
@@ -39,7 +39,7 @@ module.exports = {
       }
 
       if (_.includes(_.split(include, ','), 'comment')) {
-        for (let i = 0, iMax = criterions.length; i < iMax; i++) {
+        for (let i = 0, iMax = +_.get(criterions, 'length'); i < iMax; i++) {
           let criterion = criterions[i];
 
           const count = await sequelize.query(

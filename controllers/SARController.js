@@ -31,7 +31,10 @@ module.exports = {
         sars = renameKey(sars, 'false', 'projects');
 
         const projects = _.get(sars, 'projects');
-        for (let i = 0, iMax = projects.length; i < iMax; i++) {
+        if (!projects) {
+          sars.projects = [];
+        }
+        for (let i = 0, iMax = +_.get(projects, 'length'); i < iMax; i++) {
           let project = projects[i];
           project = projects[i] = project.toJSON();
           const curReleaseVersion = await AUN_REVERSION.max('version', {
@@ -42,7 +45,6 @@ module.exports = {
           });
           const curEditorVersion = await AUN_REVERSION.max('version', {
             where: {
-              isRelease: false,
               SARId: project.id
             }
           });
@@ -52,7 +54,10 @@ module.exports = {
         }
 
         const templates = _.get(sars, 'templates');
-        for (let i = 0, iMax = templates.length; i < iMax; i++) {
+        if (!templates) {
+          sars.templates = [];
+        }
+        for (let i = 0, iMax = +_.get(templates, 'length'); i < iMax; i++) {
           let template = templates[i];
           template = templates[i] = template.toJSON();
 
@@ -86,10 +91,10 @@ module.exports = {
           return sar.toJSON();
         });
 
-        for (let i = 0, iMax = sars.length; i < iMax; i++) {
+        for (let i = 0, iMax = +_.get(sars, 'length'); i < iMax; i++) {
           const assignment = sars[i];
           const projects = _.get(assignment, 'SARs');
-          for (let j = 0, jMax = projects.length; j < jMax; j++) {
+          for (let j = 0, jMax = +_.get(projects, 'length'); j < jMax; j++) {
             let project = projects[j];
             const curReleaseVersion = await AUN_REVERSION.max('version', {
               where: {
@@ -99,7 +104,6 @@ module.exports = {
             });
             const curEditorVersion = await AUN_REVERSION.max('version', {
               where: {
-                isRelease: false,
                 SARId: project.id
               }
             });
@@ -178,7 +182,6 @@ module.exports = {
         });
         const curEditorVersion = await AUN_REVERSION.max('version', {
           where: {
-            isRelease: false,
             SARId: sar.id
           }
         });

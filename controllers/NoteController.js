@@ -59,7 +59,7 @@ module.exports = {
           return _.get(criterionId.toJSON(), 'id');
         });
 
-        for (let i = 0, iMax = criterionIds.length; i < iMax; i++) {
+        for (let i = 0, iMax = +_.get(criterionIds, 'length'); i < iMax; i++) {
           const criterionId = criterionIds[i];
           const res = [];
 
@@ -69,7 +69,11 @@ module.exports = {
             }
           });
 
-          for (let j = 0, jMax = subCriterions.length; j < jMax; j++) {
+          for (
+            let j = 0, jMax = +_.get(subCriterions, 'length');
+            j < jMax;
+            j++
+          ) {
             const subCriterion = subCriterions[j];
             const notes = await subCriterion
               .getComments({

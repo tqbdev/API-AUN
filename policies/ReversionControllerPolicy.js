@@ -24,9 +24,6 @@ module.exports = {
       SARId = _.get(req, 'body.SARId') || null;
       await isSARBelongToUser(SARId, req);
 
-      ReversionId = _.get(req, 'body.ReversionId') || null;
-      await isReversionBelongToUser(ReversionId, req);
-
       ReversionId = _.get(req, 'params.id') || null;
       await isReversionBelongToUser(ReversionId, req);
 
