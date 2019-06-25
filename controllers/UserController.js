@@ -6,7 +6,11 @@ const { AUN_USER } = require('../models');
 module.exports = {
   async readAll(req, res) {
     try {
-      const users = await AUN_USER.findAll({});
+      const users = await AUN_USER.findAll({
+        where: {
+          isAdmin: false
+        }
+      });
       res.send(users);
     } catch (err) {
       logger.logger(err);
@@ -22,7 +26,8 @@ module.exports = {
 
       const user = await AUN_USER.findOne({
         where: {
-          id: id
+          id: id,
+          isAdmin: false
         }
       });
 

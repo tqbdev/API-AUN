@@ -125,6 +125,12 @@ module.exports = {
         order: [['version', 'DESC']]
       });
 
+      if (!curReversion) {
+        return res.status(404).send({
+          error: 'Not found any reversion'
+        });
+      }
+
       await curReversion.update({
         isRelease: true
       });
