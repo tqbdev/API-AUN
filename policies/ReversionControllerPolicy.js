@@ -27,6 +27,9 @@ module.exports = {
       ReversionId = _.get(req, 'params.id') || null;
       await isReversionBelongToUser(ReversionId, req);
 
+      ReversionId = _.get(req, 'body.ReversionId') || null;
+      await isReversionBelongToUser(ReversionId, req);
+
       next();
     } catch (err) {
       next(err);

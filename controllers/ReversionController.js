@@ -3,7 +3,7 @@ const logger = require('log4js').getLogger('error');
 
 const { AUN_REVERSION, AUN_SAR } = require('../models');
 
-const { cloneReversion } = require('../utils');
+const { cloneReversion, extractReversionToPdf } = require('../utils');
 
 const AppConstants = require('../app.constants');
 
@@ -153,6 +153,34 @@ module.exports = {
             error: 'Error in release a reversion'
           });
       }
+    }
+  },
+
+  async extract(req, res) {
+    try {
+      const { ReversionId } = req.body;
+
+      if (ReversionId) {
+        const reversion = await AUN_REVERSION.findByPk(ReversionId);
+        if (!reversion) {
+          return res.status(404).send({
+            error: 'Not found the reversion has id ' + ReversionId
+          });
+        }
+
+        const linkFile = await extractReversionToPdf(reversion.id);
+
+        return res.send({
+          link: linkFile
+        });
+      }
+
+      return res.status(400).send({});
+    } catch (err) {
+      logger.error(err);
+      res.status(500).send({
+        error: 'Error in extract a reversion'
+      });
     }
   }
 };
