@@ -260,7 +260,7 @@ const changeEvidence = async (subCriterion, evidence, isDelete = false) => {
   const newValue = isDelete ? 'Unknown' : evidence.name;
 
   let contentDoc = new DOMParser().parseFromString(content);
-  const aTags = xPathSelect(contentDoc, '//a[@data-value and @href]');
+  const aTags = xPathSelect(contentDoc, '//a[@data-mention and @href]');
 
   _.forEach(aTags, aTag => {
     const href = aTag.getAttribute('href');
@@ -274,12 +274,14 @@ const changeEvidence = async (subCriterion, evidence, isDelete = false) => {
 
     if (href === evidence.link || file === evidence.link) {
       if (isDelete) aTag.setAttribute('href', '');
-      aTag.setAttribute('data-value', newValue);
+      const dataMention = aTag.getAttribute('data-mention');
+      const id = _.get(_.split(dataMention, ' '), '[0]') || '@';
+      aTag.setAttribute('data-mention', `${id} ${newValue}`);
       let last = aTag;
       while (last.hasChildNodes()) {
         last = last.firstChild;
       }
-      last.data = '@' + newValue;
+      last.data = `${id} ${newValue}`;
     }
   });
 
