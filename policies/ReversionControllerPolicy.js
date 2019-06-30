@@ -7,13 +7,15 @@ const { isReversionBelongToUser, isSARBelongToUser } = require('../utils');
 module.exports = {
   async permission(req, res, next) {
     try {
-      switch (req.method) {
-        case 'POST':
-        case 'PATCH':
-        case 'DELETE':
-          req.role = AppConstants.ENUM.ROLE.EDITOR;
-          req.point = 'REVERSION';
-          break;
+      if (req.originalUrl !== '/reversions/extract') {
+        switch (req.method) {
+          case 'POST':
+          case 'PATCH':
+          case 'DELETE':
+            req.role = AppConstants.ENUM.ROLE.EDITOR;
+            req.point = 'REVERSION';
+            break;
+        }
       }
 
       let SARId = null;
