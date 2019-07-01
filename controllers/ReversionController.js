@@ -33,7 +33,23 @@ module.exports = {
         queryCondition.where.isRelease = true;
       }
 
-      const reversions = await AUN_REVERSION.findAll(queryCondition);
+      const reversions = (await AUN_REVERSION.findAll(queryCondition)).map(
+        reversion => {
+          return reversion.toJSON();
+        }
+      );
+
+      if (role === AppConstants.ENUM.ROLE.REVIEWER) {
+        const highestVersion = _.maxBy(reversions, reversion => {
+          return reversion.version;
+        });
+
+        if (highestVersion) {
+          return res.send([highestVersion]);
+        }
+
+        return res.send([]);
+      }
 
       res.send(reversions);
     } catch (err) {
