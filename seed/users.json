@@ -1,0 +1,21 @@
+[
+  {
+    "email": "123@gmail.com",
+    "phone": "0934209123",
+    "password": "123",
+    "name": "Nguyen Van A"
+  },
+  {
+    "email": "124@gmail.com",
+    "phone": "0934209124",
+    "password": "124",
+    "name": "Nguyen Van B",
+    "isAdmin": true
+  },
+  {
+    "email": "125@gmail.com",
+    "phone": "0934209125",
+    "password": "125",
+    "name": "Nguyen Van C"
+  }
+]

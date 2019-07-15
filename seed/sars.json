@@ -1,0 +1,15 @@
+[
+  {
+    "id": 1,
+    "name": "TESTING"
+  },
+  {
+    "id": 2,
+    "name": "HCMUS"
+  },
+  {
+    "id": 3,
+    "name": "AUN-QA V3.0",
+    "isTemplate": false
+  }
+]

@@ -3,13 +3,37 @@
   "version": "0.0.0",
   "private": true,
   "scripts": {
-    "start": "node ./bin/www"
+    "start": "node ./bin/www",
+    "seed:prd": "node ./seed/index.prd",
+    "seed:stg": "node ./seed/index.stg"
   },
   "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "bluebird": "^3.5.3",
+    "body-parser": "^1.18.3",
     "cookie-parser": "~1.4.3",
+    "cors": "^2.8.5",
     "debug": "~2.6.9",
+    "dotenv": "^6.2.0",
     "express": "~4.16.0",
+    "express-fileupload": "^1.1.1-alpha.3",
+    "html-pdf": "^2.2.0",
     "http-errors": "~1.6.2",
-    "morgan": "~1.9.0"
+    "joi": "^14.3.1",
+    "jsonwebtoken": "^8.4.0",
+    "lodash": "^4.17.11",
+    "log4js": "^4.1.0",
+    "md5": "^2.2.1",
+    "moment": "^2.24.0",
+    "morgan": "~1.9.0",
+    "mysql2": "^1.6.5",
+    "passport": "^0.4.0",
+    "passport-jwt": "^4.0.0",
+    "puppeteer": "^1.18.0",
+    "rand-token": "^0.4.0",
+    "rotating-file-stream": "^1.4.0",
+    "sequelize": "^4.42.0",
+    "xmldom": "^0.1.27",
+    "xpath.js": "^1.1.0"
   }
 }
