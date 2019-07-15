@@ -1,7 +1,13 @@
 const _ = require('lodash');
 const logger = require('log4js').getLogger('error');
 
-const { AUN_COMMENT, AUN_SUB_CRITERION, AUN_CRITERION } = require('../models');
+const {
+  AUN_COMMENT,
+  AUN_SUB_CRITERION,
+  AUN_CRITERION,
+  AUN_REVERSION
+} = require('../models');
+const { extractNoteToPdf } = require('../utils');
 
 module.exports = {
   async readAll(req, res) {
@@ -246,6 +252,33 @@ module.exports = {
       logger.error(err);
       res.status(500).send({
         error: 'Error in delete a note'
+      });
+    }
+  },
+
+  async extract(req, res) {
+    try {
+      const { ReversionId } = req.body;
+      if (ReversionId) {
+        const reversion = await AUN_REVERSION.findByPk(ReversionId);
+        if (!reversion) {
+          return res.status(404).send({
+            error: 'Not found the reversion has id ' + ReversionId
+          });
+        }
+
+        const linkFile = await extractNoteToPdf(reversion.id, req.user.email);
+
+        return res.send({
+          link: linkFile
+        });
+      }
+
+      return res.status(400).send({});
+    } catch (err) {
+      logger.error(err);
+      res.status(500).send({
+        error: 'Error in extract note'
       });
     }
   }
