@@ -135,6 +135,69 @@ const extractReversionToPdf = async ReversionId => {
   return await createPdfNew(finalHtml, SAR.name);
 };
 
+const extractNoteToPdf = async (ReversionId, userEmail) => {
+  const SAR = await AUN_SAR.findOne({
+    attributes: ['name'],
+    include: [
+      {
+        model: AUN_REVERSION,
+        as: 'Reversions',
+        where: {
+          id: ReversionId
+        }
+      }
+    ]
+  });
+
+  let htmlTemplate = fs.readFileSync(
+    path.join(__dirname, 'html_template.html'),
+    'utf8'
+  );
+
+  let content = '';
+
+  const criterions = await AUN_CRITERION.findAll({
+    where: {
+      ReversionId: ReversionId
+    }
+  });
+
+  for (let i = 0, iMax = +_.get(criterions, 'length'); i < iMax; i++) {
+    const criterion = criterions[i];
+    content += `<h2>${i + 1}. ${criterion.name}</h2>`;
+
+    const subCriterions = await AUN_SUB_CRITERION.findAll({
+      where: {
+        CriterionId: criterion.id
+      }
+    });
+
+    for (let j = 0, jMax = +_.get(subCriterions, 'length'); j < jMax; j++) {
+      const subCriterion = subCriterions[j];
+
+      content += `<h4>${j + 1}. ${subCriterion.name}</h4>`;
+
+      await subCriterion
+        .getComments({
+          where: {
+            isNote: true,
+            UserEmail: userEmail
+          }
+        })
+        .map(note => {
+          content += `<p>${note.content}</p>`;
+        });
+    }
+  }
+
+  content = _.replace(content, /strong>/g, 'b>');
+
+  const finalHtml = _.replace(htmlTemplate, 'PLACE_TO_REPLACE', content);
+  // return await createPdf(finalHtml, SAR.name);
+  return await createPdfNew(finalHtml, SAR.name);
+};
+
 module.exports = {
-  extractReversionToPdf
+  extractReversionToPdf,
+  extractNoteToPdf
 };
